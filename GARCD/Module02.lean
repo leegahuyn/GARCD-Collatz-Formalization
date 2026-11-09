@@ -778,7 +778,11 @@ theorem GARCD_4_3_Reverse_Appendix_A2 {w : List ℕ} (hw : ∀ a ∈ w, 1 ≤ a)
 
         rw [hk, pow_succ]
 
-        omega
+        apply Nat.mod_eq_zero_of_dvd
+
+        refine ⟨2 ^ k * y_next, ?_⟩
+
+        ring
 
       omega
 
@@ -1201,9 +1205,11 @@ lemma C_orbit_upper_bound {n : ℕ} (hn : n % 2 = 1) {r : ℕ} (hr_pos : 1 ≤ r
 
     intro j hj
 
-    rw [hw_len] at hj
+    have hjw : j < w.length := by omega
 
-    simp [w, orbit_word, List.getD_eq_getElem _ 0 (by simp [orbit_word, hj])]
+    rw [List.getD_eq_getElem w 0 hjw]
+
+    simp [w, orbit_word]
 
   have hA : A_orbit n r = A_part w r :=
 

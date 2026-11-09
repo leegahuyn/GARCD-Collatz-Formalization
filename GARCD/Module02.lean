@@ -1055,7 +1055,7 @@ lemma sum_three_pow_mul_two_pow (r : ℕ) :
       rw [hshift]
     rw [hsum_shift, hmul]
 
-    have hexp0 : r - r = 0 := by omega
+    have hexp0 : r + 1 - 1 - r = 0 := by omega
 
     rw [hexp0, pow_zero, one_mul]
 
@@ -1359,6 +1359,7 @@ theorem GARCD_4_4_Finite_Resolution_Descent_Criterion
 
     rw [div_lt_iff₀ h_denom_A] at h_lt_n
 
+    conv_rhs => rw [mul_comm]
     exact_mod_cast h_lt_n
 
 
@@ -1433,7 +1434,8 @@ theorem Appendix_A1_Two_Step_Half_Descent
 
   have hC_le : 4 * C_orbit n 2 ≤ 5 * 2 ^ A_orbit n 2 := by
 
-    linarith
+    norm_num at hC_bound
+    omega
 
   have hpow_ge : 32 ≤ 2 ^ A_orbit n 2 := by
 
@@ -1652,6 +1654,7 @@ theorem Lemma_9_3_Fixed_Word_Asymptotic_Ratio
   have h2_ne : (2 : ℝ) ^ A_total w ≠ 0 := by positivity
 
   field_simp
+  ring
 
 
 

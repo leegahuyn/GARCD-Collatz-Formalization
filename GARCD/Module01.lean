@@ -174,19 +174,19 @@ private lemma v2_two_pow_mul_odd (k m : ℕ) (hm : m % 2 = 1) :
 
 
 
-private lemma v2_explicit_4 : v2 4 = 2 := by
+lemma v2_explicit_4 : v2 4 = 2 := by
 
   convert v2_two_pow_mul_odd 2 1 (by norm_num) using 1 <;> norm_num
 
 
 
-private lemma v2_explicit_10 : v2 10 = 1 := by
+lemma v2_explicit_10 : v2 10 = 1 := by
 
   convert v2_two_pow_mul_odd 1 5 (by norm_num) using 1 <;> norm_num
 
 
 
-private lemma v2_explicit_16 : v2 16 = 4 := by
+lemma v2_explicit_16 : v2 16 = 4 := by
 
   convert v2_two_pow_mul_odd 4 1 (by norm_num) using 1 <;> norm_num
 

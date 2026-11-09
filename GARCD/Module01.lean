@@ -838,9 +838,16 @@ lemma CollatzOrbitRel_equivalence : Equivalence CollatzOrbitRel := by
 
     refine ⟨a + c, d + b, ?_⟩
 
-    rw [Function.iterate_add_apply, hab, ← Function.iterate_add_apply,
-
-        Nat.add_comm b c, Function.iterate_add_apply, hcd, ← Function.iterate_add_apply]
+    calc
+      (T^[a + c]) x = (T^[c]) ((T^[a]) x) := by
+        rw [Nat.add_comm a c, Function.iterate_add_apply]
+      _ = (T^[c]) ((T^[b]) y) := congrArg (T^[c]) hab
+      _ = (T^[b]) ((T^[c]) y) := by
+        rw [← Function.iterate_add_apply, ← Function.iterate_add_apply,
+          Nat.add_comm c b]
+      _ = (T^[b]) ((T^[d]) z) := congrArg (T^[b]) hcd
+      _ = (T^[d + b]) z := by
+        rw [Nat.add_comm d b, Function.iterate_add_apply]
 
 
 
@@ -1249,23 +1256,14 @@ def c_seq (k : ℕ) : ℕ := (4 ^ k - 1) / 3
 /-- 보조정리 4.1.1: 모든 `k ≥ 0`에 대해 `3 * c_k + 1 = 4^k`이며 `c_{k+1} = 4 * c_k + 1`이다. -/
 
 lemma three_mul_c_seq_add_one (k : ℕ) : 3 * c_seq k + 1 = 4 ^ k := by
-
   unfold c_seq
-
-  have hdvd : 3 ∣ (4 ^ k - 1) := by
-
+  have hmod : 4 ^ k % 3 = 1 := by
     induction k with
-
-    | zero => decide
-
+    | zero => norm_num
     | succ k ih =>
-
-      obtain ⟨m, hm⟩ := ih
-
-      refine ⟨4 * m + 1, ?_⟩
-
+      rw [pow_succ]
       omega
-
+  have hpos : 0 < 4 ^ k := by positivity
   omega
 
 

@@ -316,8 +316,8 @@ lemma F_explicit_53 : F 53 = 5 := by
 
   norm_num [F, v2_explicit_160]
 
-// Additional finite odd-step certificates for the four-step example n = 31.
-// Derived through the existing factorization lemma, not by evaluating v2 by decide.
+-- Additional finite odd-step certificates for the four-step example n = 31.
+-- Derived through the existing factorization lemma, not by evaluating v2 by decide.
 private lemma v2_explicit_94 : v2 94 = 1 := by
   convert v2_two_pow_mul_odd 1 47 (by norm_num) using 1 <;> norm_num
 

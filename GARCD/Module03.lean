@@ -686,7 +686,8 @@ theorem GARCD_12_Aperiodic_Orbit_Diverges
 
     change idx i < step_fn (idx i)
 
-    have hspec := (Nat.find_spec (hnot (idx i + 1))).1
+    have hspec : idx i + 1 ≤ step_fn (idx i) :=
+      (Nat.find_spec (hnot (idx i + 1))).1
 
     omega
 
@@ -1467,7 +1468,11 @@ theorem Lemma_13_5_Mersenne_Prefix_Formula (R : ℕ) :
 
         rw [h_rj, pow_succ]
 
-        omega
+        apply Nat.mod_eq_zero_of_dvd
+
+        refine ⟨3 ^ (j + 1) * 2 ^ (R - 1 - j), ?_⟩
+
+        ring
 
       have h_ge2 : 2 ≤ 3 ^ (j + 1) * 2 ^ (R - j) := by
 
@@ -1495,7 +1500,9 @@ theorem Lemma_13_5_Mersenne_Prefix_Formula (R : ℕ) :
 
       calc
 
-        (2 * q) % (2 ^ (1 + 1)) = (2 + 4 * (q / 2)) % 4 := by rw [hq_decomp]; ring_nf
+        (2 * q) % (2 ^ (1 + 1)) = (2 + 4 * (q / 2)) % 4 := by
+          conv_lhs => rw [hq_decomp]
+          ring_nf
 
         _ = 2 := by omega
 
@@ -1551,7 +1558,10 @@ theorem Lemma_13_5_Mersenne_Valuations_And_Ascent (R : ℕ) :
 
       rw [hstep, h_rel]
 
-    have hx_pos : 0 < x_seq (2 ^ (R + 1) - 1) (j + 1) := F_pos _
+    have hx_pos : 0 < x_seq (2 ^ (R + 1) - 1) (j + 1) := by
+      unfold x_seq
+      rw [Function.iterate_succ_apply']
+      exact lt_of_lt_of_le (by decide : 0 < 1) (F_pos _)
 
     have hpow_eq : 2 ^ a_seq (2 ^ (R + 1) - 1) j = 2 ^ 1 :=
 

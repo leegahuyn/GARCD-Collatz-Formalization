@@ -44,7 +44,9 @@ lemma C_rec_eq_C_sum (w : List ℕ) (r : ℕ) :
 
   | succ r ih =>
 
-    rw [C_rec, ih, C_sum, sum_range_succ, mul_sum]
+    rw [C_rec, ih]
+    simp only [C_sum]
+    rw [sum_range_succ, mul_sum]
 
     congr 1
 
@@ -56,7 +58,8 @@ lemma C_rec_eq_C_sum (w : List ℕ) (r : ℕ) :
 
       have hexp : r - j = (r - 1 - j) + 1 := by omega
 
-      rw [hexp, pow_succ']
+      have hshift : r + 1 - 1 - j = r - j := by omega
+      rw [hshift, hexp, pow_succ']
 
       ring
 
@@ -108,7 +111,8 @@ lemma C_orbit_succ (n r : ℕ) :
 
     have hexp : r - j = (r - 1 - j) + 1 := by omega
 
-    rw [hexp, pow_succ']
+    have hshift : r + 1 - 1 - j = r - j := by omega
+    rw [hshift, hexp, pow_succ']
 
     ring
 
@@ -344,7 +348,11 @@ lemma v2_eq_iff_mod_two_pow_succ {m a : ℕ} (hm : m ≠ 0) :
 
       _ = 2 ^ a % (2 ^ (a + 1)) := Nat.add_mul_mod_self_left _ _ _
 
-      _ = 2 ^ a := Nat.mod_eq_of_lt (by have : 0 < 2 ^ a := by positivity; omega)
+      _ = 2 ^ a := by
+        have ha : 0 < 2 ^ a := by positivity
+        have hpow : 2 ^ (a + 1) = 2 ^ a * 2 := by rw [pow_succ]
+        apply Nat.mod_eq_of_lt
+        omega
 
   · intro hmod
 
@@ -358,7 +366,11 @@ lemma v2_eq_iff_mod_two_pow_succ {m a : ℕ} (hm : m ≠ 0) :
 
       refine ⟨2 * (m / 2 ^ (a + 1)) + 1, ?_⟩
 
-      linarith [pow_succ 2 a]
+      calc
+        m = 2 ^ (a + 1) * (m / 2 ^ (a + 1)) + 2 ^ a := hdiv_eq
+        _ = 2 ^ a * (2 * (m / 2 ^ (a + 1)) + 1) := by
+          rw [pow_succ]
+          ring
 
     have hndvd : ¬ (2 ^ (a + 1) ∣ m) := by
 
@@ -400,9 +412,11 @@ lemma A_orbit_eq_A_part_of_RealizesWord {w : List ℕ} {n : ℕ} (h : RealizesWo
 
     have hj_lt : j < w.length := by omega
 
-    rw [A_orbit_succ, ih (by omega), A_part, List.take_succ_eq_append_getElem hj_lt,
+    rw [A_orbit_succ, ih (by omega)]
 
-        List.sum_append, List.sum_singleton]
+    simp only [A_part]
+
+    rw [List.take_succ_eq_append_getElem hj_lt, List.sum_append, List.sum_singleton]
 
     have hget : w.getD j 0 = w[j] := List.getD_eq_getElem w 0 hj_lt
 

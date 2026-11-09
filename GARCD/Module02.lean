@@ -422,7 +422,6 @@ lemma A_orbit_eq_A_part_of_RealizesWord {w : List ℕ} {n : ℕ} (h : RealizesWo
 
     rw [h.2.2 j hj_lt, hget]
 
-    rfl
 
 
 
@@ -636,9 +635,15 @@ theorem GARCD_4_3_Reverse_Appendix_A2 {w : List ℕ} (hw : ∀ a ∈ w, 1 ≤ a)
 
   have hdiv_eq : 3 ^ r * n + C_p w = 2 ^ (A + 1) * ((3 ^ r * n + C_p w) / 2 ^ (A + 1)) + 2 ^ A := by
 
-    have := Nat.div_add_mod (3 ^ r * n + C_p w) (2 ^ (A + 1))
-
-    omega
+    have hmod : (3 ^ r * n + C_p w) % (2 ^ (A + 1)) = 2 ^ A := hcong
+    have hq := Nat.div_add_mod (3 ^ r * n + C_p w) (2 ^ (A + 1))
+    calc
+      3 ^ r * n + C_p w =
+        ((3 ^ r * n + C_p w) / (2 ^ (A + 1))) * (2 ^ (A + 1)) +
+          (3 ^ r * n + C_p w) % (2 ^ (A + 1)) := hq.symm
+      _ = 2 ^ (A + 1) * ((3 ^ r * n + C_p w) / 2 ^ (A + 1)) + 2 ^ A := by
+        rw [hmod]
+        ring
 
   let q := (3 ^ r * n + C_p w) / 2 ^ (A + 1)
 
@@ -648,7 +653,11 @@ theorem GARCD_4_3_Reverse_Appendix_A2 {w : List ℕ} (hw : ∀ a ∈ w, 1 ≤ a)
 
     change 3 ^ r * n + C_p w = 2 ^ A * (2 * q + 1)
 
-    linarith [pow_succ 2 A]
+    calc
+      3 ^ r * n + C_p w = 2 ^ (A + 1) * q + 2 ^ A := hdiv_eq
+      _ = 2 ^ A * (2 * q + 1) := by
+        rw [pow_succ]
+        ring
 
   have hy_odd : y % 2 = 1 := by omega
 
@@ -844,7 +853,11 @@ theorem GARCD_4_3_Reverse_Appendix_A2 {w : List ℕ} (hw : ∀ a ∈ w, 1 ≤ a)
 
           _ = (2 ^ w[0]) % (2 ^ (w[0] + 1)) := Nat.add_mul_mod_self_left _ _ _
 
-          _ = 2 ^ w[0] := Nat.mod_eq_of_lt (by have : 0 < 2 ^ w[0] := by positivity; omega)
+          _ = 2 ^ w[0] := by
+            have hpos : 0 < 2 ^ w[0] := by positivity
+            have hpow : 2 ^ (w[0] + 1) = 2 ^ w[0] * 2 := by rw [pow_succ]
+            apply Nat.mod_eq_of_lt
+            omega
 
       rw [ha0, List.getD_eq_getElem w 0 hj]
 

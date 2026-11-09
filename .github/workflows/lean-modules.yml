@@ -1,0 +1,32 @@
+name: GARCD modular Lean diagnosis
+
+on:
+  push:
+    branches: [main, 'research/**']
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  module-diagnosis:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Lean and Mathlib dependencies
+        uses: leanprover/lean-action@v1
+        with:
+          use-mathlib-cache: true
+          build: false
+      - name: Compile each cumulative dependency module and capture all failures
+        shell: bash
+        run: bash Scripts/verify.sh
+      - name: Axiom audit only after complete successful build
+        if: ${{ success() }}
+        run: bash Scripts/axiom-audit.sh
+      - name: Upload full logs, including failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GARCD-module-compile-logs
+          path: Diagnostics/
+          if-no-files-found: warn

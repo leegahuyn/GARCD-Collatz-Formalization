@@ -1,0 +1,11 @@
+name = "garcd"
+version = "0.1.0"
+defaultTargets = ["GARCD"]
+
+[[lean_lib]]
+name = "GARCD"
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "v4.36.0-rc1"

@@ -262,11 +262,7 @@ lemma x_seq_add_of_eq_one {n R : ℕ} (hR : x_seq n R = 1) (k : ℕ) :
 
     refine ⟨by simpa using hR, ?_, by simp⟩
 
-    unfold a_seq
-
-    rw [Nat.add_zero, hR]
-
-    exact v2_four_eq_two
+    simpa [a_seq, hR] using v2_four_eq_two
 
   | succ k ih =>
 
@@ -438,7 +434,9 @@ theorem GARCD_7_8_Pointwise_Gate_Equivalence
 
       _ = 7 ^ (R + k + 1) * 2 ^ (A_orbit n R + 2 * k) := by
 
-            rw [pow_add 7 (R + 1) k, pow_add 2 (A_orbit n R) (2 * k)]
+            have hshift : R + k + 1 = R + 1 + k := by omega
+
+            rw [hshift, pow_add 7 (R + 1) k, pow_add 2 (A_orbit n R) (2 * k)]
 
             ring_nf
 
@@ -560,9 +558,7 @@ theorem Lemma_11_4_Geometric_Pressure_At_Zero :
 
   constructor
 
-  · unfold Lambda_pressure
-
-    simp
+  · norm_num [Lambda_pressure]
 
   · norm_num
 
@@ -762,7 +758,14 @@ theorem GARCD_13_Periodic_Valuation_Gt_Log2_3
 
     have hterm : 0 < 3 ^ (p - 1 - 0) * 2 ^ A_orbit m 0 := by positivity
 
-    exact lt_of_lt_of_le hterm (single_le_sum (fun _ _ => Nat.zero_le _) h0)
+    have hsingle : 3 ^ (p - 1 - 0) * 2 ^ A_orbit m 0 ≤
+        ∑ j ∈ range p, 3 ^ (p - 1 - j) * 2 ^ A_orbit m j := by
+      have hnonneg : ∀ j ∈ range p, (0 : ℕ) ≤
+          3 ^ (p - 1 - j) * 2 ^ A_orbit m j := by
+        intro j hj
+        exact Nat.zero_le _
+      exact Finset.single_le_sum hnonneg h0
+    exact lt_of_lt_of_le hterm hsingle
 
   have hmul_gt : 3 ^ p * m < 2 ^ A_orbit m p * m := by omega
 

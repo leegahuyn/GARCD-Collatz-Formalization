@@ -246,73 +246,73 @@ private lemma v2_explicit_160 : v2 160 = 5 := by
 
 
 
-private lemma F_explicit_1 : F 1 = 1 := by
+lemma F_explicit_1 : F 1 = 1 := by
 
   norm_num [F, v2_explicit_4]
 
 
 
-private lemma F_explicit_3 : F 3 = 5 := by
+lemma F_explicit_3 : F 3 = 5 := by
 
   norm_num [F, v2_explicit_10]
 
 
 
-private lemma F_explicit_5 : F 5 = 1 := by
+lemma F_explicit_5 : F 5 = 1 := by
 
   norm_num [F, v2_explicit_16]
 
 
 
-private lemma F_explicit_7 : F 7 = 11 := by
+lemma F_explicit_7 : F 7 = 11 := by
 
   norm_num [F, v2_explicit_22]
 
 
 
-private lemma F_explicit_9 : F 9 = 7 := by
+lemma F_explicit_9 : F 9 = 7 := by
 
   norm_num [F, v2_explicit_28]
 
 
 
-private lemma F_explicit_11 : F 11 = 17 := by
+lemma F_explicit_11 : F 11 = 17 := by
 
   norm_num [F, v2_explicit_34]
 
 
 
-private lemma F_explicit_13 : F 13 = 5 := by
+lemma F_explicit_13 : F 13 = 5 := by
 
   norm_num [F, v2_explicit_40]
 
 
 
-private lemma F_explicit_15 : F 15 = 23 := by
+lemma F_explicit_15 : F 15 = 23 := by
 
   norm_num [F, v2_explicit_46]
 
 
 
-private lemma F_explicit_17 : F 17 = 13 := by
+lemma F_explicit_17 : F 17 = 13 := by
 
   norm_num [F, v2_explicit_52]
 
 
 
-private lemma F_explicit_23 : F 23 = 35 := by
+lemma F_explicit_23 : F 23 = 35 := by
 
   norm_num [F, v2_explicit_70]
 
 
 
-private lemma F_explicit_35 : F 35 = 53 := by
+lemma F_explicit_35 : F 35 = 53 := by
 
   norm_num [F, v2_explicit_106]
 
 
 
-private lemma F_explicit_53 : F 53 = 5 := by
+lemma F_explicit_53 : F 53 = 5 := by
 
   norm_num [F, v2_explicit_160]
 

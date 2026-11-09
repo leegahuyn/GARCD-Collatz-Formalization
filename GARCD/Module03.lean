@@ -270,7 +270,7 @@ lemma x_seq_add_of_eq_one {n R : ℕ} (hR : x_seq n R = 1) (k : ℕ) :
 
   | succ k ih =>
 
-    obtain ⟨hx, _, hA⟩ := ih
+    obtain ⟨hx, ha, hA⟩ := ih
 
     have hx_next : x_seq n (R + (k + 1)) = 1 := by
 
@@ -290,7 +290,7 @@ lemma x_seq_add_of_eq_one {n R : ℕ} (hR : x_seq n R = 1) (k : ℕ) :
 
     have hA_next : A_orbit n (R + (k + 1)) = A_orbit n R + 2 * (k + 1) := by
 
-      rw [← Nat.add_assoc, A_orbit_succ, hA, ih.2.1]
+      rw [← Nat.add_assoc, A_orbit_succ, hA, ha]
 
       ring
 

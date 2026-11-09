@@ -1359,7 +1359,6 @@ theorem GARCD_4_4_Finite_Resolution_Descent_Criterion
           rw [sub_div, div_self h2A_ne]
         rw [← div_div_div_cancel_right₀ h2A_ne, mul_div_cancel_left₀ _ h2A_ne]
         simp only [hden]
-        rw [← sub_div]
 
       rw [← h_eq]
 
@@ -1541,7 +1540,19 @@ theorem Remark_8_2_Exception_Examples :
 
     x_seq (2 ^ 5 - 1) 4 > 2 ^ 5 - 1 := by
 
-  decide
+  refine ⟨?_, ?_, ?_, ?_⟩
+
+  · change F 3 > 3
+    norm_num [F_explicit_3]
+
+  · change F (F 7) > 7
+    norm_num [F_explicit_7, F_explicit_11]
+
+  · change F (F (F 15)) > 15
+    norm_num [F_explicit_15, F_explicit_23, F_explicit_35]
+
+  · change F (F (F (F 31))) > 31
+    norm_num [F_explicit_31, F_explicit_47, F_explicit_71, F_explicit_107]
 
 
 

@@ -639,7 +639,7 @@ theorem GARCD_4_3_Reverse_Appendix_A2 {w : List ℕ} (hw : ∀ a ∈ w, 1 ≤ a)
     have hq := Nat.div_add_mod (3 ^ r * n + C_p w) (2 ^ (A + 1))
     calc
       3 ^ r * n + C_p w =
-        ((3 ^ r * n + C_p w) / (2 ^ (A + 1))) * (2 ^ (A + 1)) +
+        (2 ^ (A + 1)) * ((3 ^ r * n + C_p w) / (2 ^ (A + 1))) +
           (3 ^ r * n + C_p w) % (2 ^ (A + 1)) := hq.symm
       _ = 2 ^ (A + 1) * ((3 ^ r * n + C_p w) / 2 ^ (A + 1)) + 2 ^ A := by
         rw [hmod]
@@ -879,7 +879,11 @@ theorem GARCD_4_3_Reverse_Appendix_A2 {w : List ℕ} (hw : ∀ a ∈ w, 1 ≤ a)
 
       have hC_succ : C_orbit n (j + 1) = C_sum w (j + 1) := by
 
-        rw [C_orbit_succ, hCj, hAj, ← C_rec_eq_C_sum, C_rec, C_rec_eq_C_sum]
+        rw [C_orbit_succ, hCj, hAj]
+        calc
+          3 * C_sum w j + 2 ^ A_part w j = C_rec w (j + 1) := by
+            rw [C_rec, C_rec_eq_C_sum]
+          _ = C_sum w (j + 1) := C_rec_eq_C_sum w (j + 1)
 
       refine ⟨hA_succ, hC_succ, ?_⟩
 
@@ -1077,7 +1081,10 @@ theorem Lemma_7_3_Correction_Upper_Bound_Nat
 
     have hterm : 0 < 3 ^ (r - 1 - 0) * 2 ^ A_part w 0 := by positivity
 
-    exact lt_of_lt_of_le hterm (single_le_sum (fun _ _ => Nat.zero_le _) h0)
+    have hsingle : 3 ^ (r - 1 - 0) * 2 ^ A_part w 0 ≤
+        ∑ j ∈ range r, 3 ^ (r - 1 - j) * 2 ^ A_part w j := by
+      exact Finset.single_le_sum (fun _ _ => Nat.zero_le _) h0
+    exact lt_of_lt_of_le hterm hsingle
 
   · unfold C_sum
 

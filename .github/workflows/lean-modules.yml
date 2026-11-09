@@ -12,18 +12,29 @@ jobs:
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
-      - name: Install Lean and Mathlib dependencies
-        uses: leanprover/lean-action@v1
-        with:
-          use-mathlib-cache: true
-          build: false
-      - name: Compile each cumulative dependency module and capture all failures
+      - name: Install pinned Lean toolchain (elan)
+        shell: bash
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh |
+            sh -s -- -y --default-toolchain none --no-modify-path
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          "$HOME/.elan/bin/lean" --version
+          "$HOME/.elan/bin/lake" --version
+      - name: Resolve pinned Mathlib dependencies and obtain cache
+        shell: bash
+        run: |
+          lake update
+          lake exe cache get
+      - name: Compile cumulative modules, capturing all failures
         shell: bash
         run: bash Scripts/verify.sh
-      - name: Axiom audit only after complete successful build
+      - name: Check all declared modules and import aggregation
+        if: ${{ success() }}
+        run: lake build GARCD
+      - name: Axiom audit only after all modules build
         if: ${{ success() }}
         run: bash Scripts/axiom-audit.sh
-      - name: Upload full logs, including failures
+      - name: Upload raw module logs (including failures)
         if: always()
         uses: actions/upload-artifact@v4
         with:

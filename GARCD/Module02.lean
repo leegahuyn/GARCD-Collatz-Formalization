@@ -1353,7 +1353,13 @@ theorem GARCD_4_4_Finite_Resolution_Descent_Criterion
 
         have h2A_ne : (2 : ℝ) ^ A_orbit n r ≠ 0 := by positivity
 
-        rw [← div_div_div_cancel_right₀ h2A_ne, mul_div_cancel_left₀ _ h2A_ne, sub_div, div_self h2A_ne]
+        have hden : ((2 : ℝ) ^ A_orbit n r - (3 : ℝ) ^ r) /
+            (2 : ℝ) ^ A_orbit n r =
+            1 - (3 : ℝ) ^ r / (2 : ℝ) ^ A_orbit n r := by
+          rw [sub_div, div_self h2A_ne]
+        rw [← div_div_div_cancel_right₀ h2A_ne, mul_div_cancel_left₀ _ h2A_ne]
+        simp only [hden]
+        rw [← sub_div]
 
       rw [← h_eq]
 
@@ -1758,9 +1764,15 @@ theorem Lemma_9_3_Half_Descent_For_Large_N_Iff
 
       let r0 : ℕ := (target * u⁻¹).val
 
-      refine ⟨r0 + (N₀ + 1) * M, by omega, by omega, ?_⟩
-
       have hM_pos : 0 < M := by positivity
+
+      have hlarge : N₀ + 1 ≤ (N₀ + 1) * M := by
+        calc
+          N₀ + 1 = (N₀ + 1) * 1 := by omega
+          _ ≤ (N₀ + 1) * M :=
+            Nat.mul_le_mul_left _ (by omega : 1 ≤ M)
+
+      refine ⟨r0 + (N₀ + 1) * M, by omega, by omega, ?_⟩
 
       haveI : NeZero M := ⟨ne_of_gt hM_pos⟩
 
@@ -1800,7 +1812,10 @@ theorem Lemma_9_3_Half_Descent_For_Large_N_Iff
 
           _ = target * 1 + (C_p w : ZMod M) := by rw [hu_mul]
 
-          _ = (2 ^ A_total w : ZMod M) := by unfold target; ring
+          _ = (2 ^ A_total w : ZMod M) := by
+            dsimp [target]
+            push_cast
+            ring
 
       have h_val := congrArg ZMod.val h_zmod
 
@@ -1808,7 +1823,11 @@ theorem Lemma_9_3_Half_Descent_For_Large_N_Iff
 
       rw [h_val]
 
-      exact Nat.mod_eq_of_lt (by unfold M; have : 0 < 2 ^ A_total w := by positivity; omega)
+      apply Nat.mod_eq_of_lt
+      change 2 ^ A_total w < 2 ^ (A_total w + 1)
+      rw [pow_succ]
+      have hp : 0 < 2 ^ A_total w := by positivity
+      omega
 
     obtain ⟨n, hn_ge, hn_pos, hn_cong⟩ := hexists
 

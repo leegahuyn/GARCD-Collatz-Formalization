@@ -1458,6 +1458,13 @@ theorem Lemma_13_5_Mersenne_Prefix_Formula (R : ℕ) :
 
       have h_pow3 : 3 ^ (j + 1) = 3 * 3 ^ j := by ring
 
+      have h_prod : 3 * (3 ^ j * 2 ^ (R + 1 - j)) =
+          2 * (3 ^ (j + 1) * 2 ^ (R - j)) := by
+        rw [h_pow2, h_pow3]
+        ring
+
+      have h_pos_rhs : 0 < 3 ^ (j + 1) * 2 ^ (R - j) := by positivity
+
       omega
 
     have h_odd_quot : (3 ^ (j + 1) * 2 ^ (R - j) - 1) % 2 = 1 := by
@@ -1549,6 +1556,9 @@ theorem Lemma_13_5_Mersenne_Valuations_And_Ascent (R : ℕ) :
       have hpos1 : 0 < 3 ^ j * (2 * 2 ^ (R - j)) := by positivity
 
       have hpos2 : 0 < 3 * 3 ^ j * 2 ^ (R - j) := by positivity
+
+      have h_prod : 3 * (3 ^ j * (2 * 2 ^ (R - j))) =
+          2 * (3 * 3 ^ j * 2 ^ (R - j)) := by ring
 
       omega
 

@@ -643,7 +643,6 @@ theorem GARCD_4_3_Reverse_Appendix_A2 {w : List ℕ} (hw : ∀ a ∈ w, 1 ≤ a)
           (3 ^ r * n + C_p w) % (2 ^ (A + 1)) := hq.symm
       _ = 2 ^ (A + 1) * ((3 ^ r * n + C_p w) / 2 ^ (A + 1)) + 2 ^ A := by
         rw [hmod]
-        ring
 
   let q := (3 ^ r * n + C_p w) / 2 ^ (A + 1)
 
@@ -849,7 +848,8 @@ theorem GARCD_4_3_Reverse_Appendix_A2 {w : List ℕ} (hw : ∀ a ∈ w, 1 ≤ a)
 
               = (2 ^ w[0] + 2 ^ (w[0] + 1) * (y_1 / 2)) % (2 ^ (w[0] + 1)) := by
 
-                rw [hy1_decomp]; ring_nf
+                conv_lhs => rw [hy1_decomp]
+                ring_nf
 
           _ = (2 ^ w[0]) % (2 ^ (w[0] + 1)) := Nat.add_mul_mod_self_left _ _ _
 
@@ -945,7 +945,8 @@ theorem GARCD_4_3_Reverse_Appendix_A2 {w : List ℕ} (hw : ∀ a ∈ w, 1 ≤ a)
 
               = (2 ^ w[j + 1] + 2 ^ (w[j + 1] + 1) * (y_j2 / 2)) % (2 ^ (w[j + 1] + 1)) := by
 
-                rw [hy_decomp]; ring_nf
+                conv_lhs => rw [hy_decomp]
+                ring_nf
 
           _ = (2 ^ w[j + 1]) % (2 ^ (w[j + 1] + 1)) := Nat.add_mul_mod_self_left _ _ _
 
@@ -1045,7 +1046,14 @@ lemma sum_three_pow_mul_two_pow (r : ℕ) :
 
       ring
 
-    rw [hmul]
+    have hsum_shift :
+        (∑ x ∈ range r, 3 ^ (r + 1 - 1 - x) * 2 ^ x) =
+          ∑ x ∈ range r, 3 ^ (r - x) * 2 ^ x := by
+      apply sum_congr rfl
+      intro x hx
+      have hshift : r + 1 - 1 - x = r - x := by omega
+      rw [hshift]
+    rw [hsum_shift, hmul]
 
     have hexp0 : r - r = 0 := by omega
 
@@ -1083,7 +1091,11 @@ theorem Lemma_7_3_Correction_Upper_Bound_Nat
 
     have hsingle : 3 ^ (r - 1 - 0) * 2 ^ A_part w 0 ≤
         ∑ j ∈ range r, 3 ^ (r - 1 - j) * 2 ^ A_part w j := by
-      exact Finset.single_le_sum (fun _ _ => Nat.zero_le _) h0
+      have hnonneg : ∀ j ∈ range r, (0 : ℕ) ≤
+          3 ^ (r - 1 - j) * 2 ^ A_part w j := by
+        intro j hj
+        exact Nat.zero_le _
+      exact Finset.single_le_sum hnonneg h0
     exact lt_of_lt_of_le hterm hsingle
 
   · unfold C_sum
@@ -1116,13 +1128,12 @@ theorem Lemma_7_3_Correction_Upper_Bound_Nat
 
         _ = 2 ^ A_part w r * (3 ^ (r - 1 - j) * 2 ^ j) := by rw [pow_add]; ring
 
-    rw [← mul_sum] at hbound
 
     have hsum := sum_three_pow_mul_two_pow r
 
     have hsub : (∑ j ∈ range r, 3 ^ (r - 1 - j) * 2 ^ j) = 3 ^ r - 2 ^ r := by omega
 
-    rwa [hsub] at hbound
+    simpa only [← mul_sum, hsub] using hbound
 
 
 

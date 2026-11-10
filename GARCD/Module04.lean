@@ -839,9 +839,22 @@ theorem GARCD_23_Repeated_Block_D_Decomposition (w : List ℕ) (k : ℕ) :
 
       ring
 
-    rw [h_scale, ← ih]
+    have hsum_shift :
+        (∑ x ∈ range k, (2 : ℤ) ^ (A_total w * (k + 1 - 1 - x)) *
+          (3 : ℤ) ^ (w.length * x)) =
+        ∑ x ∈ range k, (2 : ℤ) ^ (A_total w * (k - x)) *
+          (3 : ℤ) ^ (w.length * x) := by
+      refine sum_congr rfl ?_
+      intro x hx
+      have hshift : k + 1 - 1 - x = k - x := by omega
+      rw [hshift]
 
-    have hexp0 : k - k = 0 := by omega
+    rw [hsum_shift, h_scale]
+    obtain ⟨hk_len, hk_sum⟩ := repeatWord_length_and_sum w k
+    have ih_k := ih hk_len hk_sum
+    rw [← ih_k]
+
+    have hexp0 : k + 1 - 1 - k = 0 := by omega
 
     rw [hexp0, Nat.mul_zero, pow_zero, one_mul]
 

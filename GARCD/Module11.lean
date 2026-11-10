@@ -2262,9 +2262,14 @@ theorem exactOriginalFiberTransfer_proved : ExactOriginalFiberTransfer := by
 
   intro w _
 
-  dsimp [f, embLevelIndex]
+  have h_idx :
+      ((embLevelIndex β r A
+        (Nat.le_of_lt_succ (Finset.mem_Ico.mp hA).2) hβ0 w).val) = (r, w.1) := by
+    rfl
   have hA_eq : A_total w.1 = A := w.2.2.1
-  simpa only [hA_eq, q] using twoAdicValuationCylinder_ediam_rpow_le w.1 hs
+  have h_bound : Metric.ediam (TwoAdicValuationCylinder w.1) ^ s ≤ q ^ (A + 1) := by
+    simpa only [hA_eq, q] using twoAdicValuationCylinder_ediam_rpow_le w.1 hs
+  simpa only [f, h_idx, Prod.fst, Prod.snd, eq_self, ite_true] using h_bound
 
 
 

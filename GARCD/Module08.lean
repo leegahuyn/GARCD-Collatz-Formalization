@@ -557,15 +557,12 @@ lemma A_part_wordSwapAdj_eq_of_ne (pre suf : List ℕ) (x y : ℕ) {j : ℕ}
 
     have hlen2 : (pre ++ [x, y]).length = pre.length + 2 := by simp
 
-    rw [List.take_append, List.take_append,
-
-        List.take_of_length_le (by omega : (pre ++ [y, x]).length ≤ j),
-
+    conv_lhs => rw [List.take_append]
+    conv_rhs => rw [List.take_append]
+    rw [hlen1, hlen2]
+    rw [List.take_of_length_le (by omega : (pre ++ [y, x]).length ≤ j),
         List.take_of_length_le (by omega : (pre ++ [x, y]).length ≤ j)]
-
-    simp [List.sum_append]
-
-    omega
+    simp [List.sum_append, Nat.add_assoc, Nat.add_comm, Nat.add_left_comm]
 
 
 

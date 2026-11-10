@@ -2,11 +2,11 @@
 set -uo pipefail
 mkdir -p Diagnostics/logs
 printf 'module\texit_code\tbytes\n' > Diagnostics/MODULE_RESULTS.tsv
-modules=(Module01 Module02 Module03 Module04 Module05 Module06 Module07 Module08 Module09 Module10 Support Module11 Module12)
+modules=(Module01 Module02 Module03 Module04 Module05 Module06 Module07 Module08 Module09 Module10 Support Module11 Module12 SupportFiniteCertificates)
 failed=0
 for m in "${modules[@]}"; do
   echo "::group::GARCD.$m"
-  if [ "$m" = "Support" ]; then
+  if [ "$m" = "Support" ] || [ "$m" = "SupportFiniteCertificates" ]; then
     # Diagnostic time-box only: Support contains millions of exact decidable checks.
     # A timeout is NOT PASS. Capture code 124 instead of losing all module logs to runner shutdown.
     timeout --signal=TERM --kill-after=10s 70s lake build "GARCD.$m" > "Diagnostics/logs/${m}.log" 2>&1

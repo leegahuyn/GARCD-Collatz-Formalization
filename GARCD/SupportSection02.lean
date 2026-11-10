@@ -121,7 +121,7 @@ theorem GARCD_13_7_Hausdorff_measure_suffices
 
   rw [hzero]
 
-  exact zero_ne_top
+  simp
 
 
 

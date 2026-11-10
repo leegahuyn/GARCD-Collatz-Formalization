@@ -1,4 +1,4 @@
-import GARCD.Support
+import GARCD.Module06
 
 open scoped BigOperators
 open Finset Real Filter

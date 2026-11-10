@@ -2573,7 +2573,7 @@ theorem actualGeometricEnvelopeGoal_proved : ActualGeometricEnvelopeGoal := by
 
   · -- R = 0 인 경우 k = 0 항과 k ≥ 1 항으로 분리
 
-    rw [tsum_eq_zero_add' CompleteLattice.summable]
+    rw [tsum_eq_zero_add' ENNReal.summable]
 
     simp only [Nat.zero_add, pow_zero, mul_one]
 

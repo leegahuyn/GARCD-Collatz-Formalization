@@ -1,0 +1,48 @@
+name: GARCD new residual DESC class rigorous Lean check
+on:
+  push:
+    branches: ['research/desc-mod32-11-2026-11-10']
+    paths:
+      - 'Audit/ResidualDESCMod32.lean'
+      - '.github/workflows/lean-desc-mod32.yml'
+  workflow_dispatch:
+jobs:
+  prove-new-class:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean toolchain
+        shell: bash
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh |
+            sh -s -- -y --default-toolchain none --no-modify-path
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Restore pinned Mathlib cache
+        shell: bash
+        run: |
+          lake update
+          lake exe cache get
+      - name: Kernel-build existing Module12
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p Diagnostics/desc-mod32
+          git rev-parse HEAD | tee Diagnostics/desc-mod32/commit.txt
+          lake build GARCD.Module12 2>&1 | tee Diagnostics/desc-mod32/module12.log
+      - name: Prove new mod32 descent and audit exact axioms
+        shell: bash
+        run: |
+          set -o pipefail
+          lake env lean Audit/ResidualDESCMod32.lean 2>&1 | tee Diagnostics/desc-mod32/proofs.log
+          if grep -E 'sorryAx|_native\\.native_decide\\.ax_|unsound' Diagnostics/desc-mod32/proofs.log; then
+            echo "Non-kernel evidence found in proof dependencies."
+            exit 1
+          fi
+      - name: Retain compiler diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GARCD-DESC-mod32-new-class-proof
+          path: Diagnostics/desc-mod32/
+          if-no-files-found: warn

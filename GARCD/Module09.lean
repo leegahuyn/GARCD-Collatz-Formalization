@@ -283,7 +283,10 @@ lemma b_rep_realizes_prefix (a : ℕ → ℕ) (ha : ∀ j : ℕ, 1 ≤ a j) (r :
 
       _ = target * 1 + (C_inf a r : ZMod M) := by rw [hu_mul]
 
-      _ = (2 ^ A_inf a r : ZMod M) := by unfold target; ring
+      _ = (2 ^ A_inf a r : ZMod M) := by
+        unfold target
+        push_cast
+        ring
 
   have h_val := congrArg ZMod.val h_zmod
 
@@ -359,7 +362,8 @@ lemma RealizesWord_prefix_of_succ {a : ℕ → ℕ} {n r : ℕ}
 
     rw [h_eq]
 
-    rw [List.getD_eq_getElem _ 0 hj_lt_r1]
+    rw [List.getD_eq_getElem _ 0 hj_lt_r1,
+        List.getD_eq_getElem _ 0 hj]
     simp [prefixWord]
 
 

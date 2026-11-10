@@ -1,0 +1,56 @@
+name: GARCD finite certificates independent profiling
+
+on:
+  push:
+    branches: ['research/kernel-decide-sieve-2026-11-10']
+    paths: ['.github/workflows/lean-finite-certificates-profile.yml']
+  workflow_dispatch:
+
+jobs:
+  finite-certificate:
+    strategy:
+      fail-fast: false
+      matrix:
+        module: [SupportP16Certificates, SupportFiniteCertificates]
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean toolchain
+        shell: bash
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh |
+            sh -s -- -y --default-toolchain none --no-modify-path
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Load Mathlib pinned revision and cache
+        shell: bash
+        run: |
+          lake update
+          lake exe cache get
+      - name: Independently compile certificate without 70s diagnostic timebox
+        shell: bash
+        run: |
+          set -uo pipefail
+          mkdir -p Diagnostics/certificates
+          echo "${{ github.sha }}" > Diagnostics/certificates/commit.txt
+          echo "${{ matrix.module }}" > Diagnostics/certificates/module.txt
+          /usr/bin/time -v -o Diagnostics/certificates/resources.log \
+            timeout --signal=TERM --kill-after=15s 900s \
+            lake build "GARCD.${{ matrix.module }}" \
+            > Diagnostics/certificates/lean.log 2>&1
+          code=$?
+          echo "$code" > Diagnostics/certificates/exit_code.txt
+          echo "CERTIFICATE_MODULE=${{ matrix.module }} EXIT_CODE=$code"
+          if [ "$code" -eq 124 ]; then
+            echo 'TIMEOUT: independent kernel proof remains unverified (not PASS).'
+          fi
+          tail -70 Diagnostics/certificates/lean.log || true
+          cat Diagnostics/certificates/resources.log || true
+          exit "$code"
+      - name: Upload exact certificate log and resource profile
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GARCD-${{ matrix.module }}-extended-certificate-log
+          path: Diagnostics/certificates/
+          if-no-files-found: warn

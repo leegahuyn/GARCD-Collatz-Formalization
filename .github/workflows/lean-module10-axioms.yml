@@ -1,0 +1,35 @@
+name: GARCD Module10 axiom probe
+on:
+  push:
+    branches: ['research/owner-module10-axiom-audit-*']
+  workflow_dispatch:
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        shell: bash
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none --no-modify-path
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          "$HOME/.elan/bin/lean" --version
+      - name: Mathlib pinned cache
+        shell: bash
+        run: |
+          lake update
+          lake exe cache get
+      - name: Build actual Module10 and print proof axioms
+        shell: bash
+        run: |
+          mkdir -p Diagnostics/logs
+          lake build GARCD.Module10 | tee Diagnostics/logs/Module10_axioms_build.txt
+          lake env lean Audit/AxiomAudit_Module10.lean | tee Diagnostics/logs/Module10_axioms_proof.txt
+          ! grep -E 'sorryAx|unsound' Diagnostics/logs/Module10_axioms_proof.txt
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GARCD-Module10-axiom-evidence
+          path: Diagnostics/logs/Module10_axioms*

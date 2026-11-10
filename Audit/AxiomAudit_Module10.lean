@@ -1,0 +1,6 @@
+import GARCD.Module10
+
+#print axioms GARCD.Theorem_10_2_1_DESC_Iff_Arithmetic_Inequality
+#print axioms GARCD.Theorem_10_2_2_DESC_Iff_Collatz_Conjecture
+#print axioms GARCD.Syracuse_Convergence_Iff_CollatzConjectureProp
+#print axioms GARCD.Collatz_Conjecture_From_DESC

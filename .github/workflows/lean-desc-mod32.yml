@@ -4,6 +4,7 @@ on:
     branches: ['research/desc-mod32-11-2026-11-10']
     paths:
       - 'Audit/ResidualDESCMod32.lean'
+      - 'Audit/ResidualDESCMod128.lean'
       - '.github/workflows/lean-desc-mod32.yml'
   workflow_dispatch:
 jobs:
@@ -35,7 +36,8 @@ jobs:
         run: |
           set -o pipefail
           lake env lean Audit/ResidualDESCMod32.lean 2>&1 | tee Diagnostics/desc-mod32/proofs.log
-          if grep -E 'sorryAx|_native\\.native_decide\\.ax_|unsound' Diagnostics/desc-mod32/proofs.log; then
+          lake env lean Audit/ResidualDESCMod128.lean 2>&1 | tee Diagnostics/desc-mod32/proofs128.log
+          if grep -E 'sorryAx|_native\\.native_decide\\.ax_|unsound' Diagnostics/desc-mod32/proofs.log Diagnostics/desc-mod32/proofs128.log; then
             echo "Non-kernel evidence found in proof dependencies."
             exit 1
           fi

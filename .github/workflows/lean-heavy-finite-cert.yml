@@ -1,0 +1,41 @@
+name: GARCD heavyweight exact finite certificate build
+on:
+  push:
+    branches: ['research/owner-heavy-finite-cert-2026-11-10']
+  workflow_dispatch:
+jobs:
+  certificate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean toolchain
+        shell: bash
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none --no-modify-path
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          "$HOME/.elan/bin/lean" --version
+      - name: Resolve pinned Mathlib and cache
+        shell: bash
+        run: |
+          lake update
+          lake exe cache get
+      - name: Direct kernel build of all seven original certificate theorems
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p Diagnostics/logs
+          /usr/bin/time -v lake build GARCD.SupportFiniteCertificates 2>&1 | tee Diagnostics/logs/heavy-finite-build.log
+      - name: Print exact certificate axiom dependencies
+        shell: bash
+        run: |
+          set -o pipefail
+          lake env lean Audit/AxiomAudit_HeavyCertificate.lean 2>&1 | tee Diagnostics/logs/heavy-finite-axioms.log
+          if grep -E 'sorryAx|unsound' Diagnostics/logs/heavy-finite-axioms.log; then exit 1; fi
+      - name: Upload direct logs whether successful or failed
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GARCD-heavyweight-certificate-direct
+          path: Diagnostics/logs/heavy-finite-*.log
+          if-no-files-found: warn

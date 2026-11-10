@@ -44,3 +44,14 @@ Baseline [42730914791](https://github.com/leegahuyn/GARCD-Collatz-Formalization/
 7. `#check` is not a theorem proof. A green setup step is not compilation. A compiled local theorem is not a proof of Collatz, and an AI plan is not kernel evidence.
 
 Status labels for mathematical claims: `PROVED / CORRECTED / NO-GO / CONDITIONAL / INTERFACE / TOY-PROXY / OPEN`. The overall DESC conjecture remains **OPEN**.
+
+## 2026-11-10 verified update — Module05 and Module06
+
+This section supersedes the earlier `CANDIDATE` labels for the code changes, but preserves their historical diagnostics and the original proof targets.
+
+- `GARCD.Module01`–`GARCD.Module05` **exit 0** at exact commit `a082bc2fd667796e1e14cb141c09e407900db991`, [Action 42732725399](https://github.com/leegahuyn/GARCD-Collatz-Formalization/actions/runs/42732725399). Module06 had six errors at that point.
+- `GARCD.Module01`–`GARCD.Module06` **exit 0** at exact commit `cc07f33e951b8d2e32c4cdce312ba9f158ccf233`, [Action 42734199413](https://github.com/leegahuyn/GARCD-Collatz-Formalization/actions/runs/42734199413), first attempt. Module06 root groups: `M06-INV-ZMOD` (inverse product), `M06-ZMOD-FINITE` (3⁻¹=2 in ZMod 5, three residual concrete congruences), and `M06-SQ-H3` (three-term signed-sums factorization). No public theorem statement was weakened.
+- **INFRASTRUCTURE / BLOCKED_UNCERTAIN:** That same Action terminated during `GARCD.Support` compilation after the runner received a shutdown signal, process exit **143**. The `Support` exit code was *not* recorded, and no raw artifact was uploaded on the interrupted attempt. This is **not** a Lean proof failure, and neither Support nor its dependents can be marked PASS.
+- The original `GARCD/Support.lean` has 3608 lines and contains heavy kernel-decided finite certificates of 5,005; 19,448; 125,970; 497,420; 817,190; and 3,268,760 words. It is **possible**, but not yet proven, that resource pressure contributed to the runner interruption. Do not treat that hypothesis as a verified root cause.
+- The user-specified orchestration contract remains: single active mathematical frontier, one root owner, no duplicate import errors, exact source SHA and actual Lean result above AI suggestions, only verified promotions. `Module07`–`Module12` remain `BLOCKED_UNCERTAIN` until Support is independently checked.
+- Whole `lake build GARCD`, two clean builds, direct `#print axioms`, and the unconditional universal DESC target remain **NOT VERIFIED / OPEN**.

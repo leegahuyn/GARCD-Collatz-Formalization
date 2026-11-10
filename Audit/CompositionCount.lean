@@ -13,7 +13,10 @@ private theorem compositionsPos_len_rec (p A : ℕ) (h : p + 1 ≤ A) :
   simp only [if_neg (show ¬ A < p + 1 by omega),
     List.length_flatMap, List.length_map]
   rw [← List.sum_toFinset _ (List.nodup_range)]
-  simp
+  have hrange : (List.range (A - p)).toFinset = Finset.range (A - p) := by
+    ext d
+    simp only [List.mem_toFinset, List.mem_range, Finset.mem_range]
+  rw [hrange]
 
 /-- An exact polynomial-size binomial expression for the count of all
 positive exponent words, avoiding construction of millions of list values. -/

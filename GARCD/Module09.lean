@@ -260,7 +260,8 @@ lemma b_rep_realizes_prefix (a : ℕ → ℕ) (ha : ∀ j : ℕ, 1 ≤ a j) (r :
 
   let target : ZMod M := (2 ^ A_inf a r : ℕ) - (C_inf a r : ℕ)
 
-  have hu_mul : u * u⁻¹ = 1 := ZMod.mul_inv_eq_gcd (3 ^ r) M ▸ by simp [hcop.gcd_eq_one]
+  have hu_mul : u * u⁻¹ = 1 := by
+    exact ZMod.coe_mul_inv_eq_one (3 ^ r) hcop
 
   have h_zmod : ((3 ^ r * b_rep a r + C_inf a r : ℕ) : ZMod M) = ((2 ^ A_inf a r : ℕ) : ZMod M) := by
 
@@ -270,7 +271,9 @@ lemma b_rep_realizes_prefix (a : ℕ → ℕ) (ha : ∀ j : ℕ, 1 ≤ a j) (r :
 
     rw [hb_cast]
 
-    change u * (target * u⁻¹) + (C_inf a r : ZMod M) = (2 ^ A_inf a r : ZMod M)
+    have h_pow_cast : (3 : ZMod M) ^ r = u := by
+      simp [u]
+    rw [h_pow_cast]
 
     calc
 
@@ -356,7 +359,8 @@ lemma RealizesWord_prefix_of_succ {a : ℕ → ℕ} {n r : ℕ}
 
     rw [h_eq]
 
-    simp [prefixWord, List.getD_eq_getElem _ 0, hj_lt_r, by omega]
+    rw [List.getD_eq_getElem _ 0 hj_lt_r1]
+    simp [prefixWord]
 
 
 

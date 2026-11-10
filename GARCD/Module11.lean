@@ -2264,8 +2264,6 @@ theorem exactOriginalFiberTransfer_proved : ExactOriginalFiberTransfer := by
 
   dsimp [f, embLevelIndex]
 
-  rw [if_pos rfl]
-
   have hA_eq : A_total w.1 = A := w.2.2.1
 
   rw [← hA_eq]

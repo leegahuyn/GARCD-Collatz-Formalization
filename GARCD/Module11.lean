@@ -464,29 +464,29 @@ theorem GARCD_23_Repeated_Block_C_And_D_Decomposition (w : List ℕ) (k : ℕ) :
 
           C_p w * ∑ x ∈ range k, 2 ^ (A_total w * (k - x)) * 3 ^ (w.length * x) := by
 
-        rw [← mul_assoc, mul_comm (2 ^ A_total w) (C_p w), mul_assoc, mul_sum, mul_sum]
+        calc
+          2 ^ A_total w * (C_p w *
+            ∑ x ∈ range k, 2 ^ (A_total w * (k - 1 - x)) * 3 ^ (w.length * x))
+              = C_p w * (2 ^ A_total w *
+                ∑ x ∈ range k, 2 ^ (A_total w * (k - 1 - x)) * 3 ^ (w.length * x)) := by ring
+          _ = C_p w * ∑ x ∈ range k,
+                2 ^ (A_total w * (k - x)) * 3 ^ (w.length * x) := by
+            congr 1
+            rw [Finset.mul_sum]
+            refine Finset.sum_congr rfl ?_
+            intro x hx
+            have hx_lt : x < k := mem_range.mp hx
+            have hexp : A_total w * (k - x) = A_total w + A_total w * (k - 1 - x) := by
+              have heq : k - x = 1 + (k - 1 - x) := by omega
+              rw [heq, Nat.mul_add, Nat.mul_one]
+            rw [hexp, pow_add]
+            ring
 
-        refine sum_congr rfl ?_
-
-        intro x hx
-
-        have hx_lt : x < k := mem_range.mp hx
-
-        have hexp : A_total w * (k - x) = A_total w + A_total w * (k - 1 - x) := by
-
-          have : k - x = 1 + (k - 1 - x) := by omega
-
-          rw [this, Nat.mul_add, Nat.mul_one]
-
-        rw [hexp, pow_add]
-
-        ring
-
-      have hexp0 : k - k = 0 := by omega
-
-      rw [hexp0, Nat.mul_zero, pow_zero, one_mul]
-
-      linarith
+      have hidx (x : ℕ) : k + 1 - 1 - x = k - x := by omega
+      simp_rw [hidx]
+      simp only [Nat.sub_self, Nat.mul_zero, pow_zero, one_mul]
+      rw [h_tail]
+      ring
 
   refine ⟨hC, ?_⟩
 
@@ -2604,7 +2604,7 @@ theorem actualGeometricEnvelopeGoal_proved : ActualGeometricEnvelopeGoal := by
     have hCoeff :
         ((q_nn / (1 - rho_nn) : NNReal) : ENNReal) ≤ (K_nn : ENNReal) := by
       dsimp [K_nn]
-      exact le_add_of_nonneg_left (zero_le (1 : ENNReal))
+      exact le_add_of_nonneg_left (show (0 : ENNReal) ≤ 1 from bot_le)
     exact mul_le_mul_of_nonneg_right hCoeff (by positivity)
 
 

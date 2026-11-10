@@ -400,9 +400,9 @@ theorem GARCD_Q2_Two_Special_Exponents_Family_And_Certificate :
 
   refine ⟨h1,h2,h3,h4,h5,h6,h7,h8,h9,?_,?_⟩
 
-  · simp [zmod5_inv_three]
+  · decide
 
-  · norm_num
+  · decide
 
 
 
@@ -638,9 +638,9 @@ theorem Corollary_3_7_Mod5_Odd_Exponent_And_Four_Term_Certificate :
 
   refine ⟨?_, ?_, h1,h2,h3,h4,h5,h6,h7,h8⟩
 
-  · norm_num [zmod5_inv_three]
+  · decide
 
-  · norm_num [zmod5_inv_three]
+  · decide
 
 
 

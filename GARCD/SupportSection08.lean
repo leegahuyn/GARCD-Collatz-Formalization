@@ -62,7 +62,10 @@ namespace HausdorffCount20261109
 def CutCode (A r : ℕ) :=
   {s : Finset (Fin (A - 1)) // s.card = r - 1}
 
-noncomputable instance (A r : ℕ) : Fintype (CutCode A r) := Fintype.ofFinite _
+noncomputable instance (A r : ℕ) : Fintype (CutCode A r) := by
+  classical
+  unfold CutCode
+  infer_instance
 
 
 
@@ -216,7 +219,7 @@ theorem finite_weighted_sum_by_exponent_fiber
 
     Finset.sum_fiberwise_of_maps_to'
 
-      S (Finset.Icc 0 B) g hmap weight
+      (s := S) (t := Finset.Icc 0 B) (g := g) hmap weight
 
   rw [← hfiber]
 

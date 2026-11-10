@@ -97,7 +97,7 @@ noncomputable def GARCD_13_7_Actual_Hausdorff_Goal (β : ℝ) : Prop :=
 
   1 < β → β < 2 →
 
-    MeasureTheory.dimH (LowValuationExceptionSet β) ≤
+    dimH (LowValuationExceptionSet β) ≤
 
       ENNReal.ofReal (DimBound β)
 
@@ -115,9 +115,9 @@ theorem GARCD_13_7_Hausdorff_measure_suffices
 
     (hzero : (MeasureTheory.Measure.hausdorffMeasure (s : ℝ)) E = 0) :
 
-    MeasureTheory.dimH E ≤ (s : ENNReal) := by
+    dimH E ≤ (s : ENNReal) := by
 
-  apply MeasureTheory.dimH_le_of_hausdorffMeasure_ne_top
+  apply dimH_le_of_hausdorffMeasure_ne_top
 
   rw [hzero]
 

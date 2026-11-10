@@ -57,7 +57,7 @@ def GARCD_Hausdorff_Actual_Dimension_Target : Prop :=
 
   ∀ β : ℝ, 1 < β → β < 2 →
 
-    MeasureTheory.dimH (LowValuationExceptionSet β) ≤
+    dimH (LowValuationExceptionSet β) ≤
 
       ENNReal.ofReal (DimBound β)
 

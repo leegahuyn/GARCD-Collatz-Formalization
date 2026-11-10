@@ -235,7 +235,7 @@ private theorem q2OnesReduce (n : ℕ) (s : Q2State) :
 
       rw [List.replicate_add, List.foldl_append, q2FourOnes]
 
-      rw [ih (n - 4) (by omega) s]
+      rw [ih (n - 4) (by omega)]
 
       have hmod : (n - 4) % 4 = n % 4 := by omega
 
@@ -257,7 +257,8 @@ private theorem q2StepModFour (s : Q2State) (b : ℕ) (hb : b % 4 = 2) :
 
       apply ZMod.val_injective 4
 
-      simpa [ZMod.val_natCast] using hb
+      have htwo : (2 : ZMod 4).val = 2 := by decide
+      simpa [ZMod.val_natCast, htwo] using hb
 
     rw [hc]
 

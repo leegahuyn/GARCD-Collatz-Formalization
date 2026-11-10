@@ -313,6 +313,8 @@ theorem lowValuation_hausdorffMeasure_zero_of_cost_limit
 
       (LowValuationExceptionSet β) = 0 := by
 
+  haveI : Countable (LowValuationCoverIndex β) :=
+    Countable.of_injective Subtype.val Subtype.val_injective
   apply hausdorffMeasure_zero_of_vanishing_countable_cover
 
     (E := LowValuationExceptionSet β) (s := s)
@@ -385,9 +387,9 @@ theorem dimH_le_of_hausdorffMeasure_zero_corrected
 
     (hzero : (MeasureTheory.Measure.hausdorffMeasure (s : ℝ)) E = 0) :
 
-    MeasureTheory.dimH E ≤ (s : ENNReal) := by
+    dimH E ≤ (s : ENNReal) := by
 
-  apply MeasureTheory.dimH_le_of_hausdorffMeasure_ne_top
+  apply dimH_le_of_hausdorffMeasure_ne_top
 
   rw [hzero]
 
@@ -411,9 +413,9 @@ theorem dimH_le_of_hausdorffMeasure_zero_above
 
       (MeasureTheory.Measure.hausdorffMeasure (s : ℝ)) E = 0) :
 
-    MeasureTheory.dimH E ≤ (b : ENNReal) := by
+    dimH E ≤ (b : ENNReal) := by
 
-  apply MeasureTheory.dimH_le
+  apply dimH_le
 
   intro s hsTop
 

@@ -73,6 +73,95 @@ noncomputable def allCuts (A : ℕ) :
 
 
 
+
+/-- Exact finite boundary-to-interior cut-cardinality bridge for positive totals.
+    This is a cardinality argument independent of any Collatz dynamics. -/
+private theorem compositionAsSet_cut_card_add_one
+    (n : ℕ) (hn : 0 < n) (c : CompositionAsSet n) :
+    (compositionAsSetEquiv n c).card + 1 = c.length := by
+  classical
+  unfold compositionAsSetEquiv
+  simp only [Equiv.coe_fn_mk]
+  have hcard : c.boundaries.card = c.length + 1 :=
+    c.card_boundaries_eq_succ_length
+  let inner : Finset (Fin n.succ) :=
+    c.boundaries.filter (fun x => x ≠ 0 ∧ x ≠ Fin.last n)
+  have hcardinner : inner.card = c.boundaries.card - 2 := by
+    have h0 : (0 : Fin n.succ) ∈ c.boundaries := c.zero_mem
+    have hnmem : Fin.last n ∈ c.boundaries := c.getLast_mem
+    have hneq : (0 : Fin n.succ) ≠ Fin.last n := by
+      simp only [ne_eq, Fin.ext_iff, Fin.val_zero, Fin.val_last]
+      omega
+    have hset : inner = c.boundaries \ {0, Fin.last n} := by
+      ext x
+      simp only [inner, Finset.mem_filter, Finset.mem_sdiff, Finset.mem_insert,
+        Finset.mem_singleton]
+      tauto
+    rw [hset]
+    have hsub : {0, Fin.last n} ⊆ c.boundaries := by
+      intro x hx
+      simp only [Finset.mem_insert, Finset.mem_singleton] at hx
+      rcases hx with rfl | rfl
+      · exact h0
+      · exact hnmem
+    rw [Finset.card_sdiff_of_subset hsub, Finset.card_pair hneq]
+  have hbij :
+      ({i : Fin (n - 1) |
+        (⟨1 + (i : ℕ), by omega⟩ : Fin n.succ) ∈ c.boundaries}.toFinset).card =
+        inner.card := by
+    apply Finset.card_bij
+      (fun (i : Fin (n - 1)) _ =>
+        (⟨1 + (i : ℕ), by have hi := i.isLt; omega⟩ : Fin n.succ))
+    · intro i hi
+      simp at hi
+      simp only [inner, Finset.mem_filter]
+      refine ⟨hi, ?_, ?_⟩
+      · simp only [ne_eq, Fin.ext_iff, Fin.val_zero]
+        omega
+      · simp only [ne_eq, Fin.ext_iff, Fin.val_last]
+        have hh := i.isLt
+        omega
+    · intro i₁ _ i₂ _ hval
+      simp only [Fin.ext_iff] at hval ⊢
+      omega
+    · intro x hx
+      simp only [inner, Finset.mem_filter] at hx
+      obtain ⟨hm, hnz, hnl⟩ := hx
+      have hxp : 0 < x.val := by
+        simp only [ne_eq, Fin.ext_iff, Fin.val_zero] at hnz
+        omega
+      have hxlt : x.val < n := by
+        simp only [ne_eq, Fin.ext_iff, Fin.val_last] at hnl
+        have haux : x.val ≤ n := Nat.lt_succ_iff.mp x.isLt
+        omega
+      have hv : x.val - 1 < n - 1 := by omega
+      refine ⟨⟨x.val - 1, hv⟩, ?_, ?_⟩
+      · simp only [Set.mem_toFinset, Set.mem_setOf_eq]
+        convert hm using 2
+        omega
+      · simp only [Fin.ext_iff]
+        omega
+  rw [hbij, hcardinner, hcard]
+  have hlen : 1 ≤ c.length := by
+    have h0 : (0 : Fin n.succ) ∈ c.boundaries := c.zero_mem
+    have hnmem : Fin.last n ∈ c.boundaries := c.getLast_mem
+    have hneq : (0 : Fin n.succ) ≠ Fin.last n := by
+      simp only [ne_eq, Fin.ext_iff, Fin.val_zero, Fin.val_last]
+      omega
+    have hsub : {0, Fin.last n} ⊆ c.boundaries := by
+      intro x hx
+      simp only [Finset.mem_insert, Finset.mem_singleton] at hx
+      rcases hx with rfl | rfl
+      · exact h0
+      · exact hnmem
+    have hge : 2 ≤ c.boundaries.card := by
+      calc
+        2 = ({0, Fin.last n} : Finset (Fin n.succ)).card :=
+          (Finset.card_pair hneq).symm
+        _ ≤ c.boundaries.card := Finset.card_le_card hsub
+    omega
+  omega
+
 /-- Exact combinatorial LENGTH identity for the cut set.
 
     This is the critical helper for the fixed-length count.  The proof
@@ -84,46 +173,18 @@ noncomputable def allCuts (A : ℕ) :
 theorem allCuts_card_add_one (A : ℕ) (hA : 0 < A) (c : Composition A) :
 
     (allCuts A c).card + 1 = c.length := by
-
   classical
-
-  -- The canonical cut set is exactly the interior boundaries. The
-
-  -- remaining proof is an equality of cardinals of finite sets.
-
-  let b : CompositionAsSet A := compositionEquiv A c
-
-  have hlen : b.boundaries.card = b.length + 1 :=
-
-    b.card_boundaries_eq_succ_length
-
-  have h0 : (0 : Fin (A + 1)) ∈ b.boundaries := b.zero_mem
-
-  have hlast : (Fin.last A) ∈ b.boundaries := b.getLast_mem
-
-  have hneq : (0 : Fin (A + 1)) ≠ Fin.last A := by
-
-    simp [Fin.ext_iff]
-
-    omega
-
-  -- The final `simp` is a candidate for the canonical Equiv definition;
-
-  -- it must be tested on the project's frozen Mathlib revision.
-
-  simpa [allCuts, b, compositionEquiv, compositionAsSetEquiv,
-
-    CompositionAsSet.length, Finset.card_sdiff_of_subset,
-
-    hlen, h0, hlast, hneq] using hlen
-
+  simpa [allCuts, compositionEquiv] using
+    (compositionAsSet_cut_card_add_one A hA (compositionEquiv A c))
 
 
 /-- Length-filtered compositions and cut-point sets of the same cardinality.
 
     The equivalence is constructive and has an explicit inverse. -/
 
-noncomputable def wordsAsFixedCuts (A r : ℕ) (hA : 0 < A) :
+/-- CORRECTED. The unrestricted r=0 bijection is false when A>0;
+    see Diagnostics/NO_GO_SupportSection10_2026-11-10.md. -/
+noncomputable def wordsAsFixedCuts_pos (A r : ℕ) (hA : 0 < A) (hr : 0 < r) :
 
     HausdorffCount20261109.OriginalPositiveWord A r ≃
 
@@ -195,7 +256,7 @@ theorem originalPositiveWord_card_choose (A r : ℕ)
 
         = Fintype.card (HausdorffCount20261109.CutCode A r) :=
 
-            Fintype.card_congr (wordsAsFixedCuts A r hA)
+            Fintype.card_congr (wordsAsFixedCuts_pos A r hA hr)
 
     _ = Nat.choose (A - 1) (r - 1) :=
 
@@ -449,7 +510,7 @@ theorem finite_binomial_cost_le_geometric_of_exponent
 
     _ ≤ (ChernoffQ s) * (ChernoffRho β s) ^ r := by
 
-      simpa [htx] using hpow r hr
+      simpa [t, x, ChernoffT] using (hpow r hr)
 
 
 
@@ -493,9 +554,7 @@ theorem binomial_majorant_le_ennreal_geometric_of_real
 
     rw [ENNReal.ofReal_sum_of_nonneg]
 
-    · congr 1
-
-      apply Finset.sum_congr rfl
+    · apply Finset.sum_congr rfl
 
       intro A _
 
@@ -520,8 +579,7 @@ theorem binomial_majorant_le_ennreal_geometric_of_real
   refine le_trans h₁ ?_
 
   rw [ENNReal.ofReal_mul (by positivity), ENNReal.ofReal_pow]
-
-  simp
+  all_goals first | positivity | simp
 
 
 

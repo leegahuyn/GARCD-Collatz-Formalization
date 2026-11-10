@@ -896,7 +896,8 @@ theorem GARCD_42A_Cyclic_Swap_Universal_Nondivisibility
 
 
 
-theorem GARCD_42A_Mechanical_Word_p8_t5_Certificate :
+-- CORRECTED: old rotation index 5 was false; see Diagnostics/NO_GO_Module08_2026-11-10.md.
+theorem GARCD_42A_Mechanical_Word_p8_t5_Certificate_CORRECTED :
 
     mechWord 8 5 0 = [1, 2, 1, 2, 2, 1, 2, 2] ∧
 
@@ -914,7 +915,7 @@ theorem GARCD_42A_Mechanical_Word_p8_t5_Certificate :
 
     rotateLeft (mechWord 8 5 0) 2 = mechWord 8 5 2 ∧
 
-    rotateLeft (mechWord 8 5 0) 5 = mechWord 8 5 3 ∧
+    rotateLeft (mechWord 8 5 0) 7 = mechWord 8 5 3 ∧
 
     ¬ (D_nat (mechWord 8 5 0) ∣ C_p (mechWord 8 5 0)) := by
 

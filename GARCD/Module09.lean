@@ -144,7 +144,7 @@ theorem Section_7_1_One_Step_Syracuse_Convergence {k : ℕ} (hk : 1 ≤ k) :
 
     rw [v2_eq_iff_mod_two_pow_succ (by omega), h_eq]
 
-    exact Nat.mod_eq_of_lt (by have : 0 < 2 ^ (2 * k) := by positivity; omega)
+    exact Nat.mod_eq_of_lt (Nat.pow_lt_pow_right (by omega) (by omega))
 
   have ha0 : a_seq (c_seq k) 0 = 2 * k := hv2
 
@@ -218,7 +218,7 @@ lemma prefixWord_length_and_pos (a : ℕ → ℕ) (ha : ∀ j : ℕ, 1 ≤ a j) 
 
   unfold prefixWord
 
-  refine ⟨List.length_map _, ?_⟩
+  refine ⟨by simp, ?_⟩
 
   intro x hx
 
@@ -290,7 +290,9 @@ lemma b_rep_realizes_prefix (a : ℕ → ℕ) (ha : ∀ j : ℕ, 1 ≤ a j) (r :
 
     rw [h_val]
 
-    exact Nat.mod_eq_of_lt (by unfold M; have : 0 < 2 ^ A_inf a r := by positivity; omega)
+    have hpowl : 2 ^ A_inf a r < 2 ^ (A_inf a r + 1) :=
+      Nat.pow_lt_pow_right (by omega) (by omega)
+    exact Nat.mod_eq_of_lt (by simpa [M] using hpowl)
 
   obtain ⟨hlen, hpos_w⟩ := prefixWord_length_and_pos a ha r
 
@@ -456,6 +458,8 @@ theorem Theorem_19_1_Minimal_Representative_Monotone_And_Stabilization
 
     have h_mod := GARCD_4_3_Uniqueness_Mod_Two_Pow_Succ hreal_r hreal_n
 
+    change b_rep a r % (2 ^ (A_inf a r + 1)) =
+      n % (2 ^ (A_inf a r + 1)) at h_mod
     rwa [Nat.mod_eq_of_lt hlt_r, Nat.mod_eq_of_lt hn_lt] at h_mod
 
 
@@ -651,8 +655,6 @@ theorem Theorem_19_3_Eventually_Periodic_Low_Valuation_Word_Unrealizable
         2 = 2 ^ 1 := by ring
 
         _ ≤ 2 ^ A_total w := Nat.pow_le_pow_right (by omega) hA_ge1
-
-    have h_pow_gt : ∀ m : ℕ, m < 2 ^ m := Nat.lt_two_pow_self
 
     calc
 
@@ -855,13 +857,10 @@ theorem Theorem_B_1_Repeated_Expanding_Block_Exclusion
   -- (2) H, C_p w, x_{j + k p} 는 모두 홀수이므로 H * x_{j + k p} + C_p w 는 짝수!
 
   have hA_ge1 : 1 ≤ A := by
-
-    have := A_part_mono_add hw (Nat.zero_le p) (le_refl p)
-
-    unfold A A_total
-
-    simp [A_part] at this
-
+    have hpart := A_part_mono_add hw (Nat.zero_le p) (le_refl p)
+    have hbound : w.length ≤ A_total w := by
+      simpa [p, A_part, A_total] using hpart
+    dsimp [A]
     omega
 
   have hH_odd : H % 2 = 1 := by
@@ -877,13 +876,10 @@ theorem Theorem_B_1_Repeated_Expanding_Block_Exclusion
       omega
 
     have h3_odd : 3 ^ p % 2 = 1 := by
-
       induction p with
-
       | zero => rfl
-
       | succ m ih => rw [pow_succ]; omega
-
+    have hH_add : H + 2 ^ A = 3 ^ p := Nat.sub_add_cancel (le_of_lt h_exp)
     omega
 
   have hC_odd : C_p w % 2 = 1 := C_p_odd_of_pos_word hw hp
@@ -891,8 +887,8 @@ theorem Theorem_B_1_Repeated_Expanding_Block_Exclusion
   have hx_end_odd : x_seq n (j + k * p) % 2 = 1 := x_seq_odd hn_odd (j + k * p)
 
   have h_end_even : 2 ∣ (H * x_seq n (j + k * p) + C_p w) := by
-
-    omega
+    apply Nat.dvd_of_mod_eq_zero
+    simp [Nat.add_mod, Nat.mul_mod, hH_odd, hx_end_odd, hC_odd]
 
   obtain ⟨q_end, hq_end⟩ := h_end_even
 
@@ -930,7 +926,10 @@ theorem Theorem_B_1_Repeated_Expanding_Block_Exclusion
 
   have h_lower : 2 ^ j * (2 ^ (k * A + 1) + H - C_p w) ≤ H * 3 ^ j * (n + 1) := by
 
-    have h_step1 : 2 ^ (k * A + 1) + H - C_p w ≤ H * (x_seq n j + 1) := by omega
+    have h_step1 : 2 ^ (k * A + 1) + H - C_p w ≤ H * (x_seq n j + 1) := by
+      have h_expand : H * (x_seq n j + 1) = H * x_seq n j + H := by ring
+      rw [h_expand]
+      omega
 
     calc
 

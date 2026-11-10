@@ -432,7 +432,7 @@ theorem dimH_le_of_hausdorffMeasure_zero_above
 
   rw [hzero] at hsTop
 
-  simp hsTop
+  simp at hsTop
 
 
 

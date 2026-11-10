@@ -2217,6 +2217,7 @@ theorem exactOriginalFiberTransfer_proved : ExactOriginalFiberTransfer := by
 
     intro ⟨A₁, hA₁⟩ _ ⟨A₂, hA₂⟩ _ hne
 
+    change Disjoint _ _
     rw [Finset.disjoint_left]
 
     intro i hi₁ hi₂
@@ -2243,7 +2244,7 @@ theorem exactOriginalFiberTransfer_proved : ExactOriginalFiberTransfer := by
 
     exact hne (Subtype.ext (hsum₁.symm.trans hsum₂))
 
-  unfold levelActiveFinset
+  unfold levelActiveFinset HausdorffCount20261109.originalFiniteLevelCost
 
   rw [Finset.sum_biUnion h_disj, ← Finset.sum_attach (Finset.Ico r (B + 1))
 
@@ -2585,7 +2586,7 @@ theorem actualGeometricEnvelopeGoal_proved : ActualGeometricEnvelopeGoal := by
 
         ((q_nn / (1 - rho_nn) : NNReal) : ENNReal) * 1 :=
 
-      mul_le_mul_left' (by simpa using le_of_lt hrho_e_lt1) _
+      mul_le_mul_right (by simpa using le_of_lt hrho_e_lt1) _
 
     rw [mul_one] at h_rho1
 
@@ -2601,7 +2602,7 @@ theorem actualGeometricEnvelopeGoal_proved : ActualGeometricEnvelopeGoal := by
 
     refine le_trans hR ?_
 
-    refine mul_le_mul_right' ?_ _
+    refine mul_le_mul_left ?_ _
 
     unfold K_nn
 

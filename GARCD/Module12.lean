@@ -812,6 +812,13 @@ theorem GARCD_41_Two_Swaps_Factorization_And_Cyclic_Exclusion
 
   dsimp only at h_seq
 
+  have hp_bound : pre₂.length + 2 ≤ p := by
+    simpa [p, w₀] using hj₂_bound
+  have h_seq_eq : C_p w₂ = C_p w₀ +
+      2 ^ (A_total pre₁ + 1) * 3 ^ (p - 2 - pre₁.length) +
+      2 ^ (A_total pre₂ + 1) * 3 ^ (p - 2 - pre₂.length) := by
+    simpa [p, w₀, w₂] using h_seq
+
   have hexp3 : p - 2 - pre₁.length = (p - 2 - pre₂.length) + (pre₂.length - pre₁.length) := by omega
 
   have hexp2 : A_total pre₂ + 1 = (A_total pre₁ + 1) + (A_total pre₂ - A_total pre₁) := by omega

@@ -148,9 +148,8 @@ theorem Lemma_5_1_Distribution_Free_Correction_Upper_Bound
 
     have h_ico := sum_Ico_one_three_pow_mul_two_pow hp
 
-    have h_sub : (∑ j ∈ Ico 1 p, 3 ^ (p - 1 - j) * 2 ^ j) = 2 * 3 ^ (p - 1) - 2 ^ p := by
-      rw [← h_ico]
-      simp
+    have h_sub : (∑ j ∈ Ico 1 p, 3 ^ (p - 1 - j) * 2 ^ j) = 2 * 3 ^ (p - 1) - 2 ^ p :=
+      Nat.eq_sub_of_add_eq h_ico
 
     rwa [h_sub] at h_sum_le
 
@@ -517,7 +516,7 @@ lemma wordSwapAdj_length_and_total (pre suf : List ℕ) (x y : ℕ) :
 
              List.sum_append, List.sum_cons, List.sum_nil]
 
-  refine ⟨by rfl, by ring, by rfl, by ring⟩
+  refine ⟨by trivial, by ring, by trivial, by ring⟩
 
 
 

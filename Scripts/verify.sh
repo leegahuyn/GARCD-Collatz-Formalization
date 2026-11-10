@@ -2,7 +2,10 @@
 set -uo pipefail
 mkdir -p Diagnostics/logs
 printf 'module\texit_code\tbytes\n' > Diagnostics/MODULE_RESULTS.tsv
-modules=(Module01 Module02 Module03 Module04 Module05 Module06 Module07 Module08 Module09 Module10 SupportPrelude SupportSection01 SupportSection02 SupportSection03 SupportSection04 SupportSection05 SupportSection06 SupportSection07 SupportSection08 SupportSection09 SupportSection10 Support Module11 Module12 SupportP16Certificates SupportFiniteCertificates)
+# Focused repair frontier: Module01--10 already compiled with exit=0
+# on canonical exact source a3e540d669f6f51d390c35f69f2bad6feb43c4a1.
+# Their imports are recompiled transitively; complete lake build GARCD is still required.
+modules=(SupportPrelude SupportSection01 SupportSection02 SupportSection03 SupportSection04 SupportSection05 SupportSection06 SupportSection07 SupportSection08 SupportSection09 SupportSection10 Support Module11 Module12 SupportP16Certificates SupportFiniteCertificates)
 failed=0
 for m in "${modules[@]}"; do
   echo "::group::GARCD.$m"

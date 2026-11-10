@@ -2461,8 +2461,11 @@ lemma dimBound_nonneg {β : ℝ} (hβ1 : 1 < β) :
 
   have h_log_pos : 0 < Real.log β := Real.log_pos hβ1
 
-  have h_log_m1_neg : Real.log (β - 1) ≤ 0 := Real.log_nonpos (by linarith) (by linarith)
-
+  have hβm1_pos : 0 < β - 1 := by linarith
+  have hlog_lt : Real.log (β - 1) < Real.log β :=
+    Real.log_lt_log hβm1_pos (by linarith)
+  have hmul_nonneg : 0 ≤ (β - 1) * (Real.log β - Real.log (β - 1)) :=
+    mul_nonneg (le_of_lt hβm1_pos) (sub_nonneg.mpr (le_of_lt hlog_lt))
   nlinarith
 
 
@@ -2504,14 +2507,9 @@ theorem actualGeometricEnvelopeGoal_proved : ActualGeometricEnvelopeGoal := by
   have hrho_e_lt1 : (rho_nn : ENNReal) < 1 := by exact_mod_cast hrho_lt1
 
   have h_sub_ne_zero : (1 - rho_nn : NNReal) ≠ 0 := by
-
     intro h0
-
-    have : (1 : ℝ) - (rho_nn : ℝ) = 0 := by exact_mod_cast h0
-
-    have : (rho_nn : ℝ) < 1 := hrho_lt1
-
-    linarith
+    have hle : (1 : NNReal) ≤ rho_nn := (tsub_eq_zero_iff_le).mp h0
+    exact (not_le_of_gt hrho_lt1) hle
 
   have h_coe_div : ((q_nn / (1 - rho_nn) : NNReal) : ENNReal) =
 
@@ -2569,7 +2567,7 @@ theorem actualGeometricEnvelopeGoal_proved : ActualGeometricEnvelopeGoal := by
 
   · -- R = 0 인 경우 k = 0 항과 k ≥ 1 항으로 분리
 
-    rw [ENNReal.tsum_eq_zero_add]
+    rw [tsum_eq_zero_add' ENNReal.summable]
 
     simp only [Nat.zero_add, pow_zero, mul_one]
 
@@ -2867,7 +2865,7 @@ theorem unconditionalActualHausdorffGoal_proved : UnconditionalActualHausdorffGo
 
     actualHausdorffMeasure_zero_of_geometric_envelope β s_real K ρ hρ hEnv
 
-  have hdim_le_s : MeasureTheory.dimH (LowValuationExceptionSet β) ≤ (s_nn : ENNReal) :=
+  have hdim_le_s : dimH (LowValuationExceptionSet β) ≤ (s_nn : ENNReal) :=
 
     dimH_le_of_hausdorffMeasure_zero_corrected (LowValuationExceptionSet β) s_nn hzero
 

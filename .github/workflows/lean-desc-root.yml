@@ -1,0 +1,52 @@
+name: GARCD entire root with proven DESC and kernel audit
+on:
+  push:
+    branches: ['research/desc-remaining13-2026-11-10']
+    paths:
+      - 'GARCD.lean'
+      - '.github/workflows/lean-desc-root.yml'
+  workflow_dispatch:
+jobs:
+  full-root:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean toolchain
+        shell: bash
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh |
+            sh -s -- -y --default-toolchain none --no-modify-path
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Restore matching Mathlib cache
+        shell: bash
+        run: |
+          lake update
+          lake exe cache get
+      - name: Sequentially build complete GARCD root including finite certificates and new DESC classes
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p Diagnostics/desc-root
+          git rev-parse HEAD | tee Diagnostics/desc-root/commit.txt
+          lake build GARCD.Module12 2>&1 | tee Diagnostics/desc-root/module12.log
+          lake build GARCD.SupportP16Certificates 2>&1 | tee Diagnostics/desc-root/p16.log
+          lake build GARCD.SupportFiniteCertificates 2>&1 | tee Diagnostics/desc-root/finite.log
+          lake build GARCD.ResidualDESCFurther 2>&1 | tee Diagnostics/desc-root/residual.log
+          lake build GARCD 2>&1 | tee Diagnostics/desc-root/full-root.log
+      - name: Audit exact DESC equivalences and all new theorem axioms
+        shell: bash
+        run: |
+          set -o pipefail
+          lake env lean GARCD/ResidualDESCFurther.lean 2>&1 | tee Diagnostics/desc-root/axioms.log
+          if grep -E 'sorryAx|unsound|_native\\.native_decide\\.ax_' Diagnostics/desc-root/axioms.log; then
+            echo 'Unexpected proof axiom'
+            exit 1
+          fi
+      - name: Preserve verification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GARCD-root-with-new-residue-DESC-proof-logs
+          path: Diagnostics/desc-root/
+          if-no-files-found: warn

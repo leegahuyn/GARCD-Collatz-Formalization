@@ -90,9 +90,10 @@ theorem GARCD_43_Unconditional_TwoThree_Smooth_Reaches_One_And_Periodic
     IsSSmooth_mono hS (h_smooth (j₀ + 1) (by omega))
 
   have hx1 : x_seq n (j₀ + 1) = 1 := by
-
-    change F (x_seq n j₀) = 1
-
+    have hstep : x_seq n (j₀ + 1) = F (x_seq n j₀) := by
+      unfold x_seq
+      rw [Function.iterate_succ_apply']
+    rw [hstep] at h_j1 ⊢
     exact F_eq_one_of_isSSmooth_two_three h_j1
 
   have h_reach : ReachesOneSyracuse n := ⟨j₀ + 1, hx1⟩
@@ -278,8 +279,8 @@ theorem Theorem_12_2_3_Aperiodic_Orbit_Satisfies_Limsup_Log2_3
     have h3 : 1 ≤ M ^ R₀ := Nat.one_le_pow _ M hM_pos
 
     unfold K
-
-    nlinarith
+    exact one_le_mul_of_one_le_of_one_le
+      (one_le_mul_of_one_le_of_one_le h1 h2) h3
 
   have hA_inf_eq : ∀ r : ℕ, A_inf (a_seq n) r = A_orbit n r := by
 
@@ -501,7 +502,7 @@ theorem Theorem_12_2_4_Manuscript_A0_And_B0_Log2_3_Iff_Collatz_Conjecture :
 
       let w : List ℕ := (List.range p).map (fun i => a (j₀ + i))
 
-      have hw_len : w.length = p := List.length_map _
+      have hw_len : w.length = p := by simp [w]
 
       have hw_pos : ∀ x ∈ w, 1 ≤ x := by
 
@@ -947,7 +948,8 @@ theorem Theorem_12_3_2_Two_Segment_Analytic_Exclusion_Above_Two_Mul_Three_Pow
 
     have h3_pow : 3 ^ u ≤ 3 ^ (u + v) := Nat.pow_le_pow_right (by omega) (by omega : u ≤ u + v)
 
-    omega
+    have h3u_pos : 0 < 3 ^ u := by positivity
+    exact (Nat.sub_lt h3u_pos h2u_pos).trans_le h3_pow
 
   have hA2 : 3 ^ u - 2 ^ u < D_nat (w_two_segment u v) := lt_of_lt_of_le h3_gt hD_ge
 
@@ -1120,8 +1122,11 @@ theorem Theorem_12_4_1_SturmianReal_Range_And_Telescoping
       push_cast [hA_succ]
 
       rw [ih, h_coe r]
-
       ring_nf
+      have h_arg : α * ((1 + r : ℕ) : ℝ) + β = (r : ℝ) * α + α + β := by
+        push_cast
+        ring
+      rw [h_arg]
 
 
 
@@ -1343,8 +1348,7 @@ theorem Theorem_12_4_2_SturmianReal_Aperiodic_Of_Irrational
 
     push_cast
 
-    rw [div_eq_iff hp_ne]
-
+    rw [eq_div_iff hp_ne]
     linarith
 
   exact h_irr ⟨(S - (p : ℤ)) / (p : ℚ), hα_rat.symm⟩

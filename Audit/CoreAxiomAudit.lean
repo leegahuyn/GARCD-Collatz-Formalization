@@ -41,6 +41,31 @@ theorem UniversalDESCGoal_mod4_mod16_partial
   · refine ⟨2, by omega, ?_⟩
     exact (GARCD_4_2_Exact_Descent_Iff n 2).mp (h16 hmod16)
 
+
+/-- The EXACT remaining universal DESC obligation after the already proved
+five odd residue classes modulo 16. This proposition is not asserted true. -/
+def RemainingDESCMod16Goal : Prop :=
+  ∀ n : ℕ, 3 ≤ n →
+    (n % 16 = 7 ∨ n % 16 = 11 ∨ n % 16 = 15) →
+    ∃ r : ℕ, 1 ≤ r ∧
+      (C_orbit n r : ℤ) <
+        ((2 : ℤ) ^ A_orbit n r - (3 : ℤ) ^ r) * (n : ℤ)
+
+/-- Universal DESC holds exactly when the three still-uncovered odd residue
+classes modulo 16 satisfy DESC. This is a reduction, not a proof of either side. -/
+theorem UniversalDESCGoal_iff_remaining_three_mod16 :
+    UniversalDESCGoal ↔ RemainingDESCMod16Goal := by
+  constructor
+  · intro h n hn _
+    have hodd : n % 2 = 1 := by omega
+    exact h n hodd hn
+  · intro h n hodd hn
+    by_cases hdone : n % 4 = 1 ∨ n % 16 = 3
+    · exact UniversalDESCGoal_mod4_mod16_partial n hn hdone
+    · have hrest : n % 16 = 7 ∨ n % 16 = 11 ∨ n % 16 = 15 := by
+        omega
+      exact h n hn hrest
+
 end GARCD
 
 #print axioms GARCD.Theorem_10_2_1_DESC_Iff_Arithmetic_Inequality
@@ -50,3 +75,4 @@ end GARCD
 #print axioms GARCD.UniversalDESCGoal_iff_CollatzConjectureProp
 #print axioms GARCD.Theorem_12_5_3_Exact_Invariant_Mod_Sieve_Certificate
 #print axioms GARCD.UniversalDESCGoal_mod4_mod16_partial
+#print axioms GARCD.UniversalDESCGoal_iff_remaining_three_mod16

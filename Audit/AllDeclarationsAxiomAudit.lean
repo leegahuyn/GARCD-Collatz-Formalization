@@ -16,8 +16,8 @@ run_cmd do
   let env ← getEnv
   let names := (env.constants.toList.filter fun x =>
     Name.isPrefixOf `GARCD x.1).map Prod.fst
-  let mut checked := 0
-  let mut failCount := 0
+  let mut checked : Nat := 0
+  let mut failCount : Nat := 0
   for name in names do
     let axs ← collectAxioms name
     let unexpected := axs.filter fun ax =>

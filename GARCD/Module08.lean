@@ -518,7 +518,7 @@ lemma wordSwapAdj_length_and_total (pre suf : List ℕ) (x y : ℕ) :
 
              List.sum_append, List.sum_cons, List.sum_nil]
 
-  refine ⟨by omega, by omega, by omega, by omega⟩
+  refine ⟨by ring, by ring, by ring, by ring⟩
 
 
 

@@ -177,7 +177,9 @@ theorem GARCD_31_p10_A16_complete :
   · calc
       (compositionsPos 10 16).length = ((16 : ℕ) - 1).choose (10 - 1) :=
         compositionsPos_length_eq_choose 10 16 (by norm_num) (by norm_num)
-      _ = 5005 := by norm_num
+      _ = 5005 := by
+        rcases GARCD_31_Exact_Word_Counts_4734620 with ⟨_, _, h, _, _, _, _, _, _⟩
+        simpa using h
   · exact checkNoCycleHits_of_admissible_pair 10 16
       (by norm_num) (by norm_num) (by norm_num) (by norm_num)
 
@@ -195,7 +197,9 @@ theorem GARCD_31_p11_A18_complete :
   · calc
       (compositionsPos 11 18).length = ((18 : ℕ) - 1).choose (11 - 1) :=
         compositionsPos_length_eq_choose 11 18 (by norm_num) (by norm_num)
-      _ = 19448 := by norm_num
+      _ = 19448 := by
+        rcases GARCD_31_Exact_Word_Counts_4734620 with ⟨_, _, _, h, _, _, _, _, _⟩
+        simpa using h
   · exact checkNoCycleHits_of_admissible_pair 11 18
       (by norm_num) (by norm_num) (by norm_num) (by norm_num)
 
@@ -213,7 +217,9 @@ theorem GARCD_31_p13_A21_complete :
   · calc
       (compositionsPos 13 21).length = ((21 : ℕ) - 1).choose (13 - 1) :=
         compositionsPos_length_eq_choose 13 21 (by norm_num) (by norm_num)
-      _ = 125970 := by norm_num
+      _ = 125970 := by
+        rcases GARCD_31_Exact_Word_Counts_4734620 with ⟨_, _, _, _, h, _, _, _, _⟩
+        simpa using h
   · exact checkNoCycleHits_of_admissible_pair 13 21
       (by norm_num) (by norm_num) (by norm_num) (by norm_num)
 
@@ -231,7 +237,9 @@ theorem GARCD_31_p14_A23_complete :
   · calc
       (compositionsPos 14 23).length = ((23 : ℕ) - 1).choose (14 - 1) :=
         compositionsPos_length_eq_choose 14 23 (by norm_num) (by norm_num)
-      _ = 497420 := by norm_num
+      _ = 497420 := by
+        rcases GARCD_31_Exact_Word_Counts_4734620 with ⟨_, _, _, _, _, h, _, _, _⟩
+        simpa using h
   · exact checkNoCycleHits_of_admissible_pair 14 23
       (by norm_num) (by norm_num) (by norm_num) (by norm_num)
 
@@ -249,7 +257,9 @@ theorem GARCD_31_p15_A24_complete :
   · calc
       (compositionsPos 15 24).length = ((24 : ℕ) - 1).choose (15 - 1) :=
         compositionsPos_length_eq_choose 15 24 (by norm_num) (by norm_num)
-      _ = 817190 := by norm_num
+      _ = 817190 := by
+        rcases GARCD_31_Exact_Word_Counts_4734620 with ⟨_, _, _, _, _, _, h, _, _⟩
+        simpa using h
   · exact checkNoCycleHits_of_admissible_pair 15 24
       (by norm_num) (by norm_num) (by norm_num) (by norm_num)
 
@@ -267,7 +277,9 @@ theorem GARCD_31_p16_A26_complete :
   · calc
       (compositionsPos 16 26).length = ((26 : ℕ) - 1).choose (16 - 1) :=
         compositionsPos_length_eq_choose 16 26 (by norm_num) (by norm_num)
-      _ = 3268760 := by norm_num
+      _ = 3268760 := by
+        rcases GARCD_31_Exact_Word_Counts_4734620 with ⟨_, _, _, _, _, _, _, h, _⟩
+        simpa using h
   · exact checkNoCycleHits_of_admissible_pair 16 26
       (by norm_num) (by norm_num) (by norm_num) (by norm_num)
 

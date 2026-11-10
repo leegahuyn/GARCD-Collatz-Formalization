@@ -3145,7 +3145,7 @@ theorem Lemma_11_4_2_Sturmian_Bounds_And_Telescoping
 
 
 
-/-- **정리 11.4.3 (과제집 §6 p.50 `B-2` Sturmian 무한 word에 대한 연분수 유리 근사 반복 블록 배제 정리)**:
+/- **정리 11.4.3 (과제집 §6 p.50 `B-2` Sturmian 무한 word에 대한 연분수 유리 근사 반복 블록 배제 정리)**:
 
     무리수 기울기 `α = log₂ 3 - 1 ≈ 0.5849625...`의 아래쪽 유리 근사분수 `p_m / q_m < log₂ 3 - 1`
 

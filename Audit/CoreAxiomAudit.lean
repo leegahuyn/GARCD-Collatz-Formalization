@@ -1,3 +1,5 @@
+import GARCD.Module12
+
 /-!
 Independent core-proposition kernel audit.
 
@@ -7,7 +9,6 @@ large optional finite certificate files from the root GARCD target.
 IMPORTANT: The universal DESC is only defined and proved EQUIVALENT to the
 Collatz conjecture here. This does not prove universal DESC unconditionally.
 -/
-import GARCD.Module12
 
 namespace GARCD
 
@@ -33,3 +34,4 @@ end GARCD
 #print axioms GARCD.Theorem_12_2_4_Manuscript_A0_And_B0_Log2_3_Iff_Collatz_Conjecture
 #print axioms GARCD.GARCD_Complete_Unconditional_Equivalences_And_Regimes
 #print axioms GARCD.UniversalDESCGoal_iff_CollatzConjectureProp
+#print axioms GARCD.Theorem_12_5_3_Exact_Invariant_Mod_Sieve_Certificate

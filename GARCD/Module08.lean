@@ -287,10 +287,13 @@ theorem GARCD_39_Concentrated_Block_Exclusion_3D
   obtain ⟨n, hn_eq⟩ := hdvd
 
   have hle_pow : 3 ^ p ≤ 2 ^ A_total w := by
-
-    have : 1 ≤ 2 ^ (t - 1) := Nat.one_le_pow _ 2 (by omega)
-
-    nlinarith
+    have hpos : 1 ≤ 2 ^ (t - 1) := Nat.one_le_pow _ 2 (by omega)
+    have hmult : 3 ^ p ≤ 2 ^ (t - 1) * 3 ^ p := by
+      calc
+        3 ^ p = 1 * 3 ^ p := by ring
+        _ ≤ 2 ^ (t - 1) * 3 ^ p := Nat.mul_le_mul_right _ hpos
+    have hgt : 2 ^ (t - 1) * 3 ^ p < 2 ^ A_total w := hA_gt
+    omega
 
   have hA_ge1 : 1 ≤ A_total w := by
 
@@ -310,9 +313,8 @@ theorem GARCD_39_Concentrated_Block_Exclusion_3D
 
   have hn_odd : n % 2 = 1 := by
 
-    have : (D_nat w * n) % 2 = 1 := by rw [← hn_eq]; exact hC_odd
-
-    omega
+    have hprod : (D_nat w * n) % 2 = 1 := by rw [← hn_eq]; exact hC_odd
+    simpa [Nat.mul_mod, hD_odd] using hprod
 
   have hn_lt3 : n < 3 := by
 
@@ -412,10 +414,13 @@ theorem GARCD_40_Concentrated_Block_Exclusion_7D
   rintro ⟨n, hn_eq⟩
 
   have hle_pow : 3 ^ p ≤ 2 ^ A_total w := by
-
-    have : 1 ≤ 2 ^ (t - 2) := Nat.one_le_pow _ 2 (by omega)
-
-    nlinarith
+    have hpos : 1 ≤ 2 ^ (t - 2) := Nat.one_le_pow _ 2 (by omega)
+    have hmult : 3 ^ p ≤ 2 ^ (t - 2) * 3 ^ p := by
+      calc
+        3 ^ p = 1 * 3 ^ p := by ring
+        _ ≤ 2 ^ (t - 2) * 3 ^ p := Nat.mul_le_mul_right _ hpos
+    have hgt : 2 ^ (t - 2) * 3 ^ p < 2 ^ A_total w := hA_gt
+    omega
 
   have hA_ge1 : 1 ≤ A_total w := by
 
@@ -435,9 +440,8 @@ theorem GARCD_40_Concentrated_Block_Exclusion_7D
 
   have hn_odd : n % 2 = 1 := by
 
-    have : (D_nat w * n) % 2 = 1 := by rw [← hn_eq]; exact hC_odd
-
-    omega
+    have hprod : (D_nat w * n) % 2 = 1 := by rw [← hn_eq]; exact hC_odd
+    simpa [Nat.mul_mod, hD_odd] using hprod
 
   have hn_lt7 : n < 7 := by
 
@@ -624,7 +628,8 @@ theorem GARCD_41_Adjacent_Exponent_Swap_Formula (pre suf : List ℕ) (x y : ℕ)
     rw [mem_range]
 
     have hp_eq := (wordSwapAdj_length_and_total pre suf x y).1
-
+    dsimp [i, p, w]
+    rw [hp_eq]
     omega
 
   have h_sub_sum : (∑ j ∈ range p,
@@ -699,9 +704,13 @@ theorem GARCD_41_Adjacent_Swap_One_Two_Coprime
 
   have hA_eq := (wordSwapAdj_length_and_total pre suf 1 2).2.1
 
-  have hA_ge1 : 1 ≤ A_total w := by omega
+  have hA_ge1 : 1 ≤ A_total w := by
+    rw [hA_eq]
+    omega
 
-  have hp_ge1 : 1 ≤ w.length := by omega
+  have hp_ge1 : 1 ≤ w.length := by
+    rw [hp_eq]
+    omega
 
   obtain ⟨hD_odd, hD_not3, _⟩ := Remark_1_2_D_nat_Odd_And_Coprime_Six hA_ge1 hp_ge1 hle
 
@@ -822,7 +831,7 @@ theorem GARCD_42A_Cyclic_Swap_Universal_Nondivisibility
     unfold D_nat at hD_gt1
 
     rw [hA0, pow_zero] at hD_gt1
-
+    have h3pos : 1 ≤ 3 ^ w.length := by positivity
     omega
 
   have hdvd_rot1 : D_nat w ∣ C_p (rotateLeft w k₁) :=

@@ -3,7 +3,7 @@ name: GARCD finite certificates independent profiling
 on:
   push:
     branches: ['research/kernel-decide-sieve-2026-11-10']
-    paths: ['.github/workflows/lean-finite-certificates-profile.yml']
+    paths: ['.github/workflows/lean-finite-certificates-profile.yml', 'GARCD/SupportP16Certificates.lean']
   workflow_dispatch:
 
 jobs:
@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        module: [SupportP16Certificates, SupportFiniteCertificates]
+        module: [SupportP16Certificates]
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -34,11 +34,13 @@ jobs:
           mkdir -p Diagnostics/certificates
           echo "${{ github.sha }}" > Diagnostics/certificates/commit.txt
           echo "${{ matrix.module }}" > Diagnostics/certificates/module.txt
+          set +e
           /usr/bin/time -v -o Diagnostics/certificates/resources.log \
             timeout --signal=TERM --kill-after=15s 900s \
             lake build "GARCD.${{ matrix.module }}" \
             > Diagnostics/certificates/lean.log 2>&1
           code=$?
+          set -e
           echo "$code" > Diagnostics/certificates/exit_code.txt
           echo "CERTIFICATE_MODULE=${{ matrix.module }} EXIT_CODE=$code"
           if [ "$code" -eq 124 ]; then

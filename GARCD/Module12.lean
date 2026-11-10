@@ -1152,6 +1152,21 @@ theorem Theorem_12_4_2_SturmianReal_Aperiodic_Of_Irrational
 
   let a := sturmianRealWord α β
 
+  have hA_succ_all : ∀ t : ℕ, A_inf a (t + 1) = A_inf a t + a t := by
+    intro t
+    unfold A_inf A_total prefixWord
+    rw [List.range_succ, List.map_append, List.sum_append]
+    simp
+
+  have hA_mono : ∀ s d : ℕ, A_inf a s ≤ A_inf a (s + d) := by
+    intro s d
+    induction d with
+    | zero => simp
+    | succ d ih =>
+        have hidx : s + (d + 1) = (s + d) + 1 := by omega
+        rw [hidx, hA_succ_all (s + d)]
+        omega
+
   have h_tel := (Theorem_12_4_1_SturmianReal_Range_And_Telescoping (β := β) hα0 hα1).2
 
   -- 시점 j₀ 이후 주기 p 로 반복되므로 귀납법으로 모든 k : ℕ 에 대해
@@ -1186,27 +1201,8 @@ theorem Theorem_12_4_2_SturmianReal_Aperiodic_Of_Irrational
 
       have ha_eq : a (s + p) = a s := h_per s hs
 
-      have h_le : A_inf a s ≤ A_inf a (s + p) := by
-
-        clear * -
-
-        induction p with
-
-        | zero => simp
-
-        | succ k ih =>
-
-          have : s + (k + 1) = (s + k) + 1 := by omega
-
-          rw [this]
-
-          unfold A_inf A_total prefixWord
-
-          rw [List.range_succ, List.map_append, List.sum_append]
-
-          simp
-
-          omega
+      have h_le : A_inf a s ≤ A_inf a (s + p) :=
+        hA_mono s p
 
       omega
 
@@ -1236,31 +1232,11 @@ theorem Theorem_12_4_2_SturmianReal_Aperiodic_Of_Irrational
 
       have h_idx : j₀ + (k + 1) * p = (j₀ + k * p) + p := by ring
 
-      have h_le : A_inf a (j₀ + k * p) ≤ A_inf a ((j₀ + k * p) + p) := by
+      have h_le : A_inf a (j₀ + k * p) ≤ A_inf a ((j₀ + k * p) + p) :=
+        hA_mono (j₀ + k * p) p
 
-        clear * -
-
-        induction p with
-
-        | zero => simp
-
-        | succ m ihm =>
-
-          have : (j₀ + k * p) + (m + 1) = ((j₀ + k * p) + m) + 1 := by omega
-
-          rw [this]
-
-          unfold A_inf A_total prefixWord
-
-          rw [List.range_succ, List.map_append, List.sum_append]
-
-          simp
-
-          omega
-
-      have h_le_j0 : A_inf a j₀ ≤ A_inf a (j₀ + p) := by
-
-        simpa using h_le
+      have h_le_j0 : A_inf a j₀ ≤ A_inf a (j₀ + p) :=
+        hA_mono j₀ p
 
       have h_step_k := hA_step (j₀ + k * p) (by omega)
 
@@ -1306,7 +1282,9 @@ theorem Theorem_12_4_2_SturmianReal_Aperiodic_Of_Irrational
 
         (k : ℝ) * (S : ℝ) := by
 
-      exact_mod_cast h_eq_k
+      have h_eq_real := congrArg (fun z : ℤ => (z : ℝ)) h_eq_k
+      push_cast at h_eq_real
+      linarith
 
     have h_f1_le : (⌊((j₀ + k * p : ℕ) : ℝ) * α + β⌋ : ℝ) ≤ ((j₀ + k * p : ℕ) : ℝ) * α + β :=
 

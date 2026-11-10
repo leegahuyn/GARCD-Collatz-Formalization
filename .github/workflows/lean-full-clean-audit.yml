@@ -1,67 +1,70 @@
 name: GARCD full two-clean-build and axiom audit
-
 on:
   push:
     branches: ['research/fix-module11-doccomment-2026-11-10']
     paths:
       - 'GARCD/Module11.lean'
       - 'GARCD/Module12.lean'
+      - 'GARCD/SupportP16Certificates.lean'
+      - 'GARCD/SupportFiniteCertificates.lean'
+      - 'Audit/AxiomAudit.lean'
       - '.github/workflows/lean-full-clean-audit.yml'
   workflow_dispatch:
 
 concurrency:
-  group: garcd-clean-${{ github.ref }}
+  group: garcd-analytic-root-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  full-clean-proof-audit:
+  sequential-root:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
-      - name: Install pinned Lean toolchain
+      - name: Install pinned Lean
         shell: bash
         run: |
           curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh |
             sh -s -- -y --default-toolchain none --no-modify-path
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
-      - name: Resolve pinned Mathlib and cache
+      - name: Restore pinned Mathlib cache
         shell: bash
         run: |
           lake update
           lake exe cache get
-      - name: Preflight Module11 and Module12
+      - name: Clean 1 and sequentially build all source modules and the GARCD root
         shell: bash
         run: |
           set -o pipefail
-          mkdir -p Diagnostics/full
-          git rev-parse HEAD | tee Diagnostics/full/commit.txt
-          lake build GARCD.Module11 GARCD.Module12 2>&1 | tee Diagnostics/full/frontiers.log
-      - name: Clean build 1 of 2 (full GARCD target)
+          mkdir -p Diagnostics/sequential-root
+          git rev-parse HEAD | tee Diagnostics/sequential-root/commit.txt
+          lake clean garcd
+          lake build GARCD.Module12 2>&1 | tee Diagnostics/sequential-root/first-module12.log
+          lake build GARCD.SupportP16Certificates 2>&1 | tee Diagnostics/sequential-root/first-p16.log
+          lake build GARCD.SupportFiniteCertificates 2>&1 | tee Diagnostics/sequential-root/first-finite.log
+          lake build GARCD 2>&1 | tee Diagnostics/sequential-root/first-full-root.log
+      - name: Clean 2 and sequentially rebuild the full GARCD root
         shell: bash
         run: |
           set -o pipefail
           lake clean garcd
-          lake build GARCD 2>&1 | tee Diagnostics/full/clean1.log
-      - name: Clean build 2 of 2 (full GARCD target)
+          lake build GARCD.Module12 2>&1 | tee Diagnostics/sequential-root/second-module12.log
+          lake build GARCD.SupportP16Certificates 2>&1 | tee Diagnostics/sequential-root/second-p16.log
+          lake build GARCD.SupportFiniteCertificates 2>&1 | tee Diagnostics/sequential-root/second-finite.log
+          lake build GARCD 2>&1 | tee Diagnostics/sequential-root/second-full-root.log
+      - name: Root kernel axiom audit of DESC equivalences and complete finite certificates
         shell: bash
         run: |
           set -o pipefail
-          lake clean garcd
-          lake build GARCD 2>&1 | tee Diagnostics/full/clean2.log
-      - name: Kernel axiom audit after both clean builds
-        shell: bash
-        run: |
-          set -o pipefail
-          lake env lean Audit/AxiomAudit.lean 2>&1 | tee Diagnostics/full/axioms.log
-          if grep -E 'sorryAx|unsound' Diagnostics/full/axioms.log; then
-            echo 'Unexpected axiom marker; audit failed.'
+          lake env lean Audit/AxiomAudit.lean 2>&1 | tee Diagnostics/sequential-root/axioms.log
+          if grep -E 'sorryAx|unsound|_native\\.native_decide\\.ax_' Diagnostics/sequential-root/axioms.log; then
+            echo 'Unexpected proof axiom detected'
             exit 1
           fi
-      - name: Upload all available verification logs
+      - name: Publish full logs for failures or success
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: GARCD-full-clean-builds-and-axioms
-          path: Diagnostics/full/
+          name: GARCD-two-sequential-full-clean-builds-axioms
+          path: Diagnostics/sequential-root/
           if-no-files-found: warn

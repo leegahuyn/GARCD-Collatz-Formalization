@@ -888,10 +888,9 @@ theorem Theorem_11_2_9_A0_Manuscript_Iff_NoNontrivialCycle :
       refine ⟨hm_odd, hw_pos, ?_⟩
 
       intro j hj
-
-      rw [hw_len] at hj
-
-      simp [w, orbit_word, List.getD_eq_getElem _ 0 (by simp [orbit_word, hj])]
+      have hjw : j < w.length := by simpa [hw_len] using hj
+      rw [List.getD_eq_getElem w 0 hjw]
+      simp [w, orbit_word]
 
     have hper_w : x_seq m w.length = m := by rw [hw_len]; exact hper
 
@@ -2035,8 +2034,7 @@ lemma twoAdicValuationCylinder_ediam_rpow_le
 
         (ENNReal.ofReal ((2 : ℝ) ^ (-s))) ^ k := by
 
-    rw [← ENNReal.ofReal_rpow_of_pos (by positivity), h_real_pow,
-
+    rw [ENNReal.ofReal_rpow_of_pos (by positivity), h_real_pow,
         ENNReal.ofReal_pow (by positivity)]
 
   exact le_trans h_rpow (le_of_eq h_ennreal_pow)
@@ -2173,7 +2171,9 @@ theorem exactOriginalFiberTransfer_proved : ExactOriginalFiberTransfer := by
 
           exact A_total_ge_length_of_all_pos i.val.2 hpos
 
-        have hAB : A ≤ B := Nat.le_floor i.property.2
+        have hAB : A ≤ B := by
+          apply Nat.le_floor
+          simpa [A, A_total, hir] using i.property.2
 
         have hA_mem : A ∈ Finset.Ico r (B + 1) := Finset.mem_Ico.mpr ⟨hrA, Nat.lt_succ_of_le hAB⟩
 
@@ -3144,9 +3144,8 @@ theorem Lemma_11_4_2_Sturmian_Bounds_And_Telescoping
         simp
 
       obtain ⟨h1, _⟩ := h_step r
-
-      unfold sturmianRatWord at hA_succ
-
+      rw [hA_succ]
+      unfold sturmianRatWord
       omega
 
 

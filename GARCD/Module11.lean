@@ -466,29 +466,33 @@ theorem GARCD_23_Repeated_Block_C_And_D_Decomposition (w : List ℕ) (k : ℕ) :
 
           C_p w * ∑ x ∈ range k, 2 ^ (A_total w * (k - x)) * 3 ^ (w.length * x) := by
 
-        rw [← mul_assoc, mul_comm (2 ^ A_total w) (C_p w), mul_assoc, mul_sum, mul_sum]
+        calc
+          2 ^ A_total w *
+              (C_p w * ∑ x ∈ range k,
+                2 ^ (A_total w * (k - 1 - x)) * 3 ^ (w.length * x)) =
+              C_p w * (2 ^ A_total w * ∑ x ∈ range k,
+                2 ^ (A_total w * (k - 1 - x)) * 3 ^ (w.length * x)) := by ring
+          _ = C_p w * ∑ x ∈ range k,
+                2 ^ A_total w * (2 ^ (A_total w * (k - 1 - x)) * 3 ^ (w.length * x)) := by
+                  rw [mul_sum]
+          _ = C_p w * ∑ x ∈ range k,
+                2 ^ (A_total w * (k - x)) * 3 ^ (w.length * x) := by
+                  congr 1
+                  refine sum_congr rfl ?_
+                  intro x hx
+                  have hx_lt : x < k := mem_range.mp hx
+                  have hexp : A_total w * (k - x) =
+                      A_total w + A_total w * (k - 1 - x) := by
+                    have h : k - x = 1 + (k - 1 - x) := by omega
+                    rw [h, Nat.mul_add, Nat.mul_one]
+                  rw [hexp, pow_add]
+                  ring
 
-        refine sum_congr rfl ?_
-
-        intro x hx
-
-        have hx_lt : x < k := mem_range.mp hx
-
-        have hexp : A_total w * (k - x) = A_total w + A_total w * (k - 1 - x) := by
-
-          have : k - x = 1 + (k - 1 - x) := by omega
-
-          rw [this, Nat.mul_add, Nat.mul_one]
-
-        rw [hexp, pow_add]
-
-        ring
-
-      have hexp0 : k - k = 0 := by omega
-
-      rw [hexp0, Nat.mul_zero, pow_zero, one_mul]
-
-      linarith
+      have hidx : k + 1 - 1 = k := by omega
+      rw [hidx]
+      simp only [Nat.sub_self, Nat.mul_zero, pow_zero, one_mul]
+      rw [h_tail]
+      ring
 
   refine ⟨hC, ?_⟩
 
@@ -776,6 +780,8 @@ lemma A_total_and_C_p_of_all_two :
 
         ring
 
+      have hidx : p + 1 - 1 = p := by omega
+      rw [hidx]
       rw [h_scale]
 
       have ih_val := ihp (fun j hj => hp_part j (by omega))

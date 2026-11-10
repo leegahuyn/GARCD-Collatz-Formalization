@@ -3,3 +3,4 @@ import GARCD.SupportFiniteCertificates
 import GARCD.SupportP16Certificates
 import GARCD.ResidualDESCFurther
 import GARCD.DESCInfiniteFamilies
+import GARCD.DESCAffineTransfer

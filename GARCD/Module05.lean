@@ -333,12 +333,8 @@ theorem GARCD_32_Infinite_Family_Nondivisibility
   have hC_pos : 0 < C_p (w_GARCD32 p A) := by omega
 
   have hC_lt_D : C_p (w_GARCD32 p A) < D_nat (w_GARCD32 p A) := by
-
-    unfold D_nat
-
-    rw [hlen, hsum, hC]
-
-    omega
+    have h_bound : 3 ^ p - 2 ^ p < 2 ^ A - 3 ^ p := by omega
+    simpa only [D_nat, hlen, hsum, hC] using h_bound
 
   refine ⟨by norm_num, hC, hC_pos, hC_lt_D, ?_⟩
 
@@ -624,7 +620,16 @@ lemma C_rec_w_two_segment_second (u v : ℕ) :
 
       ring
 
-    linarith
+    calc
+      3 * C_rec (w_two_segment u v) (u + k) + 2 ^ (u + 2 * k) +
+          2 ^ (u + 1) * 3 ^ (k + 1) =
+          3 * (C_rec (w_two_segment u v) (u + k) + 2 ^ (u + 1) * 3 ^ k) +
+            2 ^ (u + 2 * k) := by rw [h3k]; ring
+      _ = 3 * (3 ^ (u + k) + 2 ^ (u + 2 * k)) +
+            2 ^ (u + 2 * k) := by rw [ih_k]
+      _ = 3 ^ (u + (k + 1)) + 2 ^ (u + 2 * (k + 1)) := by
+        rw [h3uk, h2uk]
+        ring
 
 
 
@@ -682,9 +687,13 @@ theorem Theorem_A_1_Two_Segment_Block_Identities_And_Divisibility
 
     ring
 
-  have hA_ge1 : 1 ≤ A_total w := by omega
+  have hA_ge1 : 1 ≤ A_total w := by
+    rw [hsum]
+    omega
 
-  have hp_ge1 : 1 ≤ w.length := by omega
+  have hp_ge1 : 1 ≤ w.length := by
+    rw [hlen]
+    omega
 
   have hle_w : 3 ^ w.length ≤ 2 ^ A_total w := by rw [hlen, hsum]; exact hle
 

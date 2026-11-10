@@ -1,0 +1,39 @@
+name: GARCD analytic composition-length kernel test
+on:
+  push:
+    branches: ['research/analytic-finite-cert-2026-11-10']
+    paths:
+      - 'Audit/CompositionCount.lean'
+      - '.github/workflows/lean-composition-count-test.yml'
+  workflow_dispatch:
+
+jobs:
+  composition-count:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        shell: bash
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none --no-modify-path
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Resolve pinned Mathlib
+        shell: bash
+        run: |
+          lake update
+          lake exe cache get
+      - name: Compile exact binomial count theorem, preserving source goals
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p Diagnostics/length-formula
+          lake build GARCD.Module05 2>&1 | tee Diagnostics/length-formula/module05.log
+          lake env lean Audit/CompositionCount.lean 2>&1 | tee Diagnostics/length-formula/proof.log
+      - name: Publish logs on failure or success
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GARCD-composition-count-proof-logs
+          path: Diagnostics/length-formula/
+          if-no-files-found: warn

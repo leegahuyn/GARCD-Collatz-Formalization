@@ -2216,7 +2216,9 @@ theorem exactOriginalFiberTransfer_proved : ExactOriginalFiberTransfer := by
         fiberCoverFinset β r a.1 (Nat.le_of_lt_succ (Finset.mem_Ico.mp a.2).2) hβ0) := by
 
     intro ⟨A₁, hA₁⟩ _ ⟨A₂, hA₂⟩ _ hne
-
+    change Disjoint
+      (fiberCoverFinset β r A₁ (Nat.le_of_lt_succ (Finset.mem_Ico.mp hA₁).2) hβ0)
+      (fiberCoverFinset β r A₂ (Nat.le_of_lt_succ (Finset.mem_Ico.mp hA₂).2) hβ0)
     rw [Finset.disjoint_left]
 
     intro i hi₁ hi₂
@@ -2243,8 +2245,7 @@ theorem exactOriginalFiberTransfer_proved : ExactOriginalFiberTransfer := by
 
     exact hne (Subtype.ext (hsum₁.symm.trans hsum₂))
 
-  unfold levelActiveFinset
-
+  unfold levelActiveFinset HausdorffCount20261109.originalFiniteLevelCost
   rw [Finset.sum_biUnion h_disj, ← Finset.sum_attach (Finset.Ico r (B + 1))
 
     (fun A => HausdorffCount20261109.originalPositiveWordCost A r q)]

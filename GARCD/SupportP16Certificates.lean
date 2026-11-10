@@ -316,6 +316,34 @@ theorem GARCD_31_All_Admissible_Words_p_le_16_No_Cycle
 
 
 
+
+/-- Kernel-provable non-divisibility for EVERY positive exponent word
+of length at most 16 in the admissible exponent window, without assuming
+the word is primitive. This is the bridge toward eliminating massive
+per-word boolean cycle enumeration. -/
+theorem GARCD_31_Positive_Words_p_le_16_No_Cycle
+    {w : List ℕ}
+    (hp : 1 ≤ w.length) (hp16 : w.length ≤ 16)
+    (hw : ∀ a ∈ w, 1 ≤ a)
+    (hgt : 3 ^ w.length < 2 ^ A_total w)
+    (hupper : 7 ^ w.length * 2 ^ A_total w ≤ 22 ^ w.length) :
+    ¬ (D_nat w ∣ C_p w) := by
+  intro hdiv
+  obtain ⟨n, hreal, hperiod⟩ :=
+    (Theorem_14_2_Cycle_Realization_Iff hp hw).2 ⟨hgt, hdiv⟩
+  have hcycle := (Theorem_14_1_Positive_Odd_Cycle_Equation hp hreal hperiod).2.2
+  have hbound : n < 4096 :=
+    GARCD_31_cycle_start_under_4096 hp hp16 hw hgt hupper hcycle
+  have hn1 := GARCD_31_periodic_with_one_is_trivial hp hperiod
+    (GARCD_31_odd_under_4096_reaches_one hreal.1 (by omega))
+  have hAsum : A_total w = 2 * w.length := by
+    have hA := A_orbit_eq_A_part_of_RealizesWord hreal w.length (le_refl _)
+    rw [hn1, GARCD_31_A_orbit_one, A_part, List.take_length] at hA
+    simpa [A_total] using hA.symm
+  have hpair := GARCD_31_admissible_pair_eight hp hp16 hgt hupper
+  rcases hpair with h | h | h | h | h | h | h | h
+  all_goals rcases h with ⟨hpEq, hAEq⟩ <;> omega
+
 end GARCD
 
 

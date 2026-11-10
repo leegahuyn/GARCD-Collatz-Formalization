@@ -559,9 +559,9 @@ theorem binomial_majorant_le_ennreal_geometric_of_real
 
       intro A _
 
-      have hbase : (0 : ℝ) ≤ (2 : ℝ) ^ (-s) :=
-         Real.rpow_nonneg (by norm_num) (-s)
-       simp [ChernoffQ, ENNReal.ofReal_pow hbase]
+      have hbase : (0 : ℝ) ≤ (2 : ℝ) ^ (-s) := by
+        exact Real.rpow_nonneg (by norm_num) (-s)
+      simp [ChernoffQ, ENNReal.ofReal_pow hbase]
 
     · intro A _
 

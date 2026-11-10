@@ -1,0 +1,54 @@
+name: GARCD global affine traces and precise Collatz boundary
+on:
+  push:
+    branches: ['research/desc-global-trace-existence-2026-11-11']
+    paths:
+      - 'GARCD/DESCGlobalTraceExistence.lean'
+      - 'GARCD.lean'
+      - '.github/workflows/lean-desc-global-trace.yml'
+  workflow_dispatch:
+jobs:
+  global-trace:
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        shell: bash
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh |
+            sh -s -- -y --default-toolchain none --no-modify-path
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Restore pinned Mathlib
+        shell: bash
+        run: |
+          lake update
+          lake exe cache get
+      - name: Kernel-verify global affine trace theorem
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p Diagnostics/desc-global-trace
+          git rev-parse HEAD | tee Diagnostics/desc-global-trace/commit.txt
+          lake build GARCD.DESCGlobalTraceExistence 2>&1 | tee Diagnostics/desc-global-trace/module.log
+      - name: Audit transitive Lean axioms
+        shell: bash
+        run: |
+          set -o pipefail
+          lake env lean GARCD/DESCGlobalTraceExistence.lean 2>&1 | tee Diagnostics/desc-global-trace/axioms.log
+          if grep -E 'sorryAx|unsound|_native\\.native_decide\\.ax_' Diagnostics/desc-global-trace/axioms.log; then
+            echo 'Unsafe proof dependency'
+            exit 1
+          fi
+      - name: Build GARCD root
+        shell: bash
+        run: |
+          set -o pipefail
+          lake build GARCD 2>&1 | tee Diagnostics/desc-global-trace/root.log
+      - name: Preserve logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GARCD-global-trace-diagnostics
+          path: Diagnostics/desc-global-trace/
+          if-no-files-found: warn

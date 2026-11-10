@@ -29,13 +29,13 @@ jobs:
           set -o pipefail
           mkdir -p Diagnostics/clean-core
           git rev-parse HEAD | tee Diagnostics/clean-core/commit.txt
-          lake clean
+          lake clean garcd
           lake build GARCD.Module12 2>&1 | tee Diagnostics/clean-core/first.log
       - name: Clean core build 2 of 2
         shell: bash
         run: |
           set -o pipefail
-          lake clean
+          lake clean garcd
           lake build GARCD.Module12 2>&1 | tee Diagnostics/clean-core/second.log
       - name: Independent kernel and DESC axiom audit
         shell: bash

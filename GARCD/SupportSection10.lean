@@ -178,7 +178,7 @@ theorem allCuts_card_add_one (A : ℕ) (hA : 0 < A) (c : Composition A) :
     (compositionAsSet_cut_card_add_one A hA (compositionEquiv A c))
 
 
-/-- Length-filtered compositions and cut-point sets of the same cardinality.
+/- Length-filtered compositions and cut-point sets of the same cardinality.
 
     The equivalence is constructive and has an explicit inverse. -/
 
@@ -510,6 +510,7 @@ theorem finite_binomial_cost_le_geometric_of_exponent
 
     _ ≤ (ChernoffQ s) * (ChernoffRho β s) ^ r := by
 
+      rw [htx]
       simpa [t, x, ChernoffT] using (hpow r hr)
 
 
@@ -558,9 +559,7 @@ theorem binomial_majorant_le_ennreal_geometric_of_real
 
       intro A _
 
-      simp [ENNReal.ofReal_mul (by positivity), ENNReal.ofReal_pow,
-
-        ChernoffQ]
+      simp [ChernoffQ, ENNReal.ofReal_pow (by positivity)]
 
     · intro A _
 

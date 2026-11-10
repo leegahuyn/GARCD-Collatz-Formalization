@@ -169,12 +169,12 @@ lemma C_p_odd_of_pos_word {w : List ℕ} (hw : ∀ a ∈ w, 1 ≤ a) (hp : 1 ≤
   simp only [A_part, List.take_zero, List.sum_nil, pow_zero, mul_one, Nat.sub_zero, Nat.add_sub_cancel]
 
   have h3_odd : 3 ^ k % 2 = 1 := by
-
-    induction k with
-
-    | zero => rfl
-
-    | succ m ih => simpa [pow_succ, Nat.mul_mod, ih]
+    have h_all : ∀ t : ℕ, 3 ^ t % 2 = 1 := by
+      intro t
+      induction t with
+      | zero => rfl
+      | succ m ih => simpa [pow_succ, Nat.mul_mod, ih]
+    exact h_all k
 
   have h_sum_even : (∑ i ∈ range k, 3 ^ (k - 1 - i) * 2 ^ (w.take (i + 1)).sum) % 2 = 0 := by
 
@@ -213,7 +213,6 @@ lemma C_p_odd_of_pos_word {w : List ℕ} (hw : ∀ a ∈ w, 1 ≤ a) (hp : 1 ≤
     rw [hexp]
 
   rw [hsum_align, Nat.add_mod, h_sum_even, h3_odd]
-  norm_num
 
 
 

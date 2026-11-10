@@ -376,6 +376,7 @@ lemma A_part_append_right (u v : List ℕ) (j : ℕ) :
   unfold A_part A_total
 
   rw [List.take_append, List.sum_append]
+  rw [List.take_of_length_le (Nat.le_add_right _ _), Nat.add_sub_cancel_left]
 
 
 

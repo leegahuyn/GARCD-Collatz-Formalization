@@ -12,7 +12,7 @@ private theorem compositionsPos_len_rec (p A : ℕ) (h : p + 1 ≤ A) :
       (compositionsPos p (A - (d + 1))).map (fun tl => (d + 1) :: tl))).length = _
   simp only [if_neg (show ¬ A < p + 1 by omega),
     List.length_flatMap, List.length_map]
-  rw [List.sum_toFinset _ (List.nodup_range)]
+  rw [← List.sum_toFinset _ (List.nodup_range)]
   simp
 
 /-- An exact polynomial-size binomial expression for the count of all
@@ -42,7 +42,8 @@ theorem compositionsPos_length_eq_choose (p A : ℕ)
           apply Finset.sum_eq_zero
           intro d hd
           have hd_lt : d < A - 1 := Finset.mem_range.mp hd
-          simp [show A - 1 + 1 - (d + 1) ≠ 0 by omega]
+          have hne : A - 1 + 1 - (d + 1) ≠ 0 := by omega
+          simp only [if_neg hne]
         rw [hzero]
         simp [show A - ((A - 1) + 1) = 0 by omega]
       · have hp1 : 1 ≤ p := by omega

@@ -1,4 +1,5 @@
 import GARCD.Module10
+import GARCD.Support
 
 open scoped BigOperators
 open Finset Real Filter

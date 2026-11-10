@@ -496,7 +496,7 @@ theorem finite_binomial_cost_le_geometric_of_exponent
 
     field_simp [hxne]
 
-  rw [← htx]
+  conv_lhs => rw [← htx]
 
   calc
 
@@ -559,7 +559,9 @@ theorem binomial_majorant_le_ennreal_geometric_of_real
 
       intro A _
 
-      simp [ChernoffQ, ENNReal.ofReal_pow (by positivity)]
+      have hbase : (0 : ℝ) ≤ (2 : ℝ) ^ (-s) :=
+         Real.rpow_nonneg (by norm_num) (-s)
+       simp [ChernoffQ, ENNReal.ofReal_pow hbase]
 
     · intro A _
 

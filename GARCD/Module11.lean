@@ -2514,14 +2514,7 @@ theorem actualGeometricEnvelopeGoal_proved : ActualGeometricEnvelopeGoal := by
   have hrho_e_lt1 : (rho_nn : ENNReal) < 1 := by exact_mod_cast hrho_lt1
 
   have h_sub_ne_zero : (1 - rho_nn : NNReal) ≠ 0 := by
-
-    intro h0
-
-    have : (1 : ℝ) - (rho_nn : ℝ) = 0 := by exact_mod_cast h0
-
-    have : (rho_nn : ℝ) < 1 := hrho_lt1
-
-    linarith
+    exact ne_of_gt (tsub_pos_iff_lt.mpr hrho_lt1)
 
   have h_coe_div : ((q_nn / (1 - rho_nn) : NNReal) : ENNReal) =
 
@@ -2579,7 +2572,7 @@ theorem actualGeometricEnvelopeGoal_proved : ActualGeometricEnvelopeGoal := by
 
   · -- R = 0 인 경우 k = 0 항과 k ≥ 1 항으로 분리
 
-    rw [ENNReal.tsum_eq_zero_add]
+    rw [tsum_eq_zero_add' CompleteLattice.summable]
 
     simp only [Nat.zero_add, pow_zero, mul_one]
 
@@ -2607,13 +2600,12 @@ theorem actualGeometricEnvelopeGoal_proved : ActualGeometricEnvelopeGoal := by
 
     refine le_trans hR ?_
 
-    refine mul_le_mul_right' ?_ _
-
-    unfold K_nn
-
-    rw [ENNReal.coe_add]
-
-    exact le_add_self
+    have hCoeff :
+        ((q_nn / (1 - rho_nn) : NNReal) : ENNReal) ≤ (K_nn : ENNReal) := by
+      dsimp [K_nn]
+      rw [ENNReal.coe_add]
+      exact le_add_self
+    exact mul_le_mul_of_nonneg_right hCoeff (by positivity)
 
 
 

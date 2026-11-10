@@ -3144,9 +3144,8 @@ theorem Lemma_11_4_2_Sturmian_Bounds_And_Telescoping
         simp
 
       obtain ⟨h1, _⟩ := h_step r
-
-      unfold sturmianRatWord at hA_succ
-
+      rw [hA_succ]
+      dsimp only [sturmianRatWord]
       omega
 
 

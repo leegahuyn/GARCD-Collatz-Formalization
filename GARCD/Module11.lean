@@ -2262,15 +2262,9 @@ theorem exactOriginalFiberTransfer_proved : ExactOriginalFiberTransfer := by
 
   intro w _
 
-  dsimp [f, embLevelIndex]
-
-  rw [if_pos rfl]
-
   have hA_eq : A_total w.1 = A := w.2.2.1
-
-  rw [← hA_eq]
-
-  exact twoAdicValuationCylinder_ediam_rpow_le w.1 hs
+  simpa [f, embLevelIndex, q, hA_eq] using
+    (twoAdicValuationCylinder_ediam_rpow_le w.1 hs)
 
 
 

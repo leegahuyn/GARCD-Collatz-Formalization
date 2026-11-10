@@ -373,9 +373,7 @@ lemma A_part_append_right (u v : List ℕ) (j : ℕ) :
 
     A_part (u ++ v) (u.length + j) = A_total u + A_part v j := by
 
-  unfold A_part A_total
-
-  rw [List.take_append, List.sum_append]
+  simp [A_part, A_total, List.take_append]
 
 
 
@@ -578,11 +576,9 @@ lemma repeatWord_add (v : List ℕ) (a b : ℕ) :
     simp [repeatWord]
 
   | succ a ih =>
-
     rw [Nat.succ_add]
-
-    unfold repeatWord
-
+    change v ++ repeatWord v (a + b) =
+      (v ++ repeatWord v a) ++ repeatWord v b
     rw [ih, List.append_assoc]
 
 
@@ -598,9 +594,8 @@ lemma repeatWord_mul (v : List ℕ) (a b : ℕ) :
     simp [repeatWord]
 
   | succ b ih =>
-
-    unfold repeatWord
-
+    change repeatWord v a ++ repeatWord (repeatWord v a) b =
+      repeatWord v (a * (b + 1))
     rw [ih, Nat.mul_succ, Nat.add_comm (a * b) a, repeatWord_add]
 
 
@@ -655,7 +650,8 @@ theorem exists_primitive_root_of_nonempty_word :
 
     push Not at hprim
 
-    obtain ⟨u, m, hm_ge2, hw_eq⟩ := hprim hw_pos
+    have hw_lenpos : 1 ≤ w.length := by omega
+    obtain ⟨u, m, hm_ge2, hw_eq⟩ := hprim hw_lenpos
 
     have hlen_um : w.length = u.length * m := by
 
@@ -773,7 +769,11 @@ lemma A_total_and_C_p_of_all_two :
 
         ring
 
-      rw [h_scale]
+      have h_scale_norm :
+          (∑ x ∈ range p, 3 ^ (p + 1 - 1 - x) * 2 ^ A_part w x) =
+            3 * (∑ x ∈ range p, 3 ^ (p - 1 - x) * 2 ^ A_part w x) := by
+        simpa [Nat.add_sub_cancel_left] using h_scale
+      rw [h_scale_norm]
 
       have ih_val := ihp (fun j hj => hp_part j (by omega))
 
@@ -843,7 +843,10 @@ theorem Theorem_11_2_9_A0_Manuscript_Iff_NoNontrivialCycle :
 
           change F^[p] (x_seq m (t * p)) = m
 
-          rw [ih, hper]
+          change F^[p] (x_seq m (t * p)) = m
+      rw [ih]
+      change x_seq m p = m
+      exact hper
 
       have h_at_Rp : x_seq m (R * p) = 1 := by
 
@@ -881,7 +884,11 @@ theorem Theorem_11_2_9_A0_Manuscript_Iff_NoNontrivialCycle :
 
       rw [hw_len] at hj
 
-      simp [w, orbit_word, List.getD_eq_getElem _ 0 (by simp [orbit_word, hj])]
+      have hj_word : j < (orbit_word m p).length := by
+        simpa [orbit_word] using hj
+      change a_seq m j = (orbit_word m p).getD j 0
+      rw [List.getD_eq_getElem _ 0 hj_word]
+      simp [orbit_word]
 
     have hper_w : x_seq m w.length = m := by rw [hw_len]; exact hper
 
@@ -1337,7 +1344,7 @@ theorem Theorem_11_2_11_Manuscript_A0_And_B0_Iff_Collatz_Conjecture :
 
       let w : List ℕ := (List.range p).map (fun i => a (j₀ + i))
 
-      have hw_len : w.length = p := List.length_map _
+      have hw_len : w.length = p := by simp [w]
 
       have hw_pos : ∀ x ∈ w, 1 ≤ x := by
 
@@ -3145,7 +3152,11 @@ theorem Lemma_11_4_2_Sturmian_Bounds_And_Telescoping
 
 
 
-/-- **정리 11.4.3 (과제집 §6 p.50 `B-2` Sturmian 무한 word에 대한 연분수 유리 근사 반복 블록 배제 정리)**:
+/- **NO-GO: 원문 11.4.3의 구버전 주장은 수치 반례로 대체되었다. 원문 문서 보존용 일반 주석**
+
+    원문: 과제집 §6 p.50 B-2 Sturmian 무한 word의 연분수 유리 근사 반복 블록 배제 정리
+
+    아래에 교정된 실제 정리가 이어진다. 원문은 증명 대상 docstring이 아니라 역사적 기록이다.
 
     무리수 기울기 `α = log₂ 3 - 1 ≈ 0.5849625...`의 아래쪽 유리 근사분수 `p_m / q_m < log₂ 3 - 1`
 

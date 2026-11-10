@@ -1,0 +1,47 @@
+name: GARCD consolidated residual DESC kernel verification
+on:
+  push:
+    branches: ['research/desc-mod32-11-2026-11-10']
+    paths:
+      - 'GARCD/ResidualDESC.lean'
+      - '.github/workflows/lean-residual-desc-module.yml'
+  workflow_dispatch:
+jobs:
+  residual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        shell: bash
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh |
+            sh -s -- -y --default-toolchain none --no-modify-path
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Resolve pinned Mathlib
+        shell: bash
+        run: |
+          lake update
+          lake exe cache get
+      - name: Build modular DESC proof artifact using Lean kernel
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p Diagnostics/residual
+          git rev-parse HEAD | tee Diagnostics/residual/commit.txt
+          lake build GARCD.ResidualDESC 2>&1 | tee Diagnostics/residual/module.log
+      - name: Audit full residual theorem axioms
+        shell: bash
+        run: |
+          set -o pipefail
+          lake env lean GARCD/ResidualDESC.lean 2>&1 | tee Diagnostics/residual/axioms.log
+          if grep -E 'sorryAx|unsound|_native\\.native_decide\\.ax_' Diagnostics/residual/axioms.log; then
+            exit 1
+          fi
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GARCD-consolidated-residual-DESC-logs
+          path: Diagnostics/residual/
+          if-no-files-found: warn

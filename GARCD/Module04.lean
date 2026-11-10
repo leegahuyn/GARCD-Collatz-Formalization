@@ -501,7 +501,7 @@ lemma weighted_drift_partial (w : List ℕ) {r : ℕ} (hr : r ≤ w.length) :
 
       unfold W_weight
 
-      have hexp : r - x = (r - 1 - x) + 1 := by omega
+      have hexp : r + 1 - 1 - x = (r - 1 - x) + 1 := by omega
 
       rw [hexp, pow_succ']
 
@@ -511,7 +511,7 @@ lemma weighted_drift_partial (w : List ℕ) {r : ℕ} (hr : r ≤ w.length) :
 
     unfold W_weight
 
-    have hexp0 : r - r = 0 := by omega
+    have hexp0 : r + 1 - 1 - r = 0 := by omega
 
     rw [hexp0, pow_zero, one_mul]
 
@@ -771,11 +771,18 @@ lemma repeatWord_length_and_sum (w : List ℕ) (k : ℕ) :
 
   | succ k ih =>
 
-    unfold repeatWord A_total at ih ⊢
+    obtain ⟨hlen, hsum⟩ := ih
 
-    rw [List.length_append, List.sum_append, ih.1, ih.2]
+    constructor
 
-    constructor <;> ring
+    · change (w ++ repeatWord w k).length = w.length * (k + 1)
+      rw [List.length_append, hlen]
+      ring
+
+    · change (w ++ repeatWord w k).sum = w.sum * (k + 1)
+      change (repeatWord w k).sum = w.sum * k at hsum
+      rw [List.sum_append, hsum]
+      ring
 
 
 
@@ -815,9 +822,7 @@ theorem GARCD_23_Repeated_Block_D_Decomposition (w : List ℕ) (k : ℕ) :
 
           ∑ x ∈ range k, (2 : ℤ) ^ (A_total w * (k - 1 - x)) * (3 : ℤ) ^ (w.length * x)) := by
 
-      rw [mul_left_comm, mul_sum, mul_sum]
-
-      congr 1
+      simp only [mul_sum]
 
       refine sum_congr rfl ?_
 
@@ -1052,78 +1057,16 @@ theorem GARCD_30_Cyclic_Rotation_Identity_Nat (a₀ : ℕ) (tl : List ℕ) :
     simp only [A_part, List.take_zero, List.sum_nil, pow_zero, mul_one, Nat.sub_zero, Nat.add_sub_cancel]
 
     rw [Nat.add_comm]
-
-  -- C_p (rotateLeftOne (a₀ :: tl)) 를 앞쪽 j = 0..m-1 과 마지막 항 j = m 으로 분리
-
-  have hC_rot : C_p (rotateLeftOne (a₀ :: tl)) =
-
-      (∑ j ∈ range m, 3 ^ (m - 1 - j) * 2 ^ A_part (tl ++ [a₀]) j) + 2 ^ A_part (tl ++ [a₀]) m := by
-
-    unfold C_p C_sum
-
-    rw [hlen_rot, sum_range_succ]
-
     congr 1
+    refine sum_congr rfl ?_
+    intro j hj
+    have hshift : m - (j + 1) = m - 1 - j := by omega
+    rw [hshift]
 
-    · refine sum_congr rfl ?_
-
-      intro j hj
-
-      have hj_lt : j < m := mem_range.mp hj
-
-      have hexp : m - j = m - 1 - j + 1 := by omega
-
-      rfl
-
-    · have hexp0 : m - m = 0 := by omega
-
-      simp [rotateLeftOne, hexp0]
-
-  -- 2^{a₀} * C_p (rotateLeftOne (a₀ :: tl)) 전개
-
-  have h_2a0_rot : 2 ^ a₀ * C_p (rotateLeftOne (a₀ :: tl)) =
-
-      (∑ j ∈ range m, 3 ^ (m - 1 - j) * 2 ^ A_part (a₀ :: tl) (j + 1)) + 2 ^ A_total (a₀ :: tl) := by
-
-    rw [hC_rot, mul_add, mul_sum]
-
-    congr 1
-
-    · refine sum_congr rfl ?_
-
-      intro j hj
-
-      have hj_lt : j < m := mem_range.mp hj
-
-      rw [A_part_cons_succ_eq a₀ tl (le_of_lt hj_lt), pow_add]
-
-      ring
-
-    · have hAm : a₀ + A_part (tl ++ [a₀]) m = A_total (a₀ :: tl) := by
-
-        rw [← A_part_cons_succ_eq a₀ tl (le_refl m)]
-
-        unfold A_part A_total
-
-        have : m + 1 = (a₀ :: tl).length := rfl
-
-        rw [this, List.take_length]
-
-      rw [← pow_add, hAm]
-
-  -- 3 * C_p (a₀ :: tl) 와 비교
-
-  have h_3Cw : 3 * C_p (a₀ :: tl) =
-
-      3 ^ (m + 1) + 3 * ∑ j ∈ range m, 3 ^ (m - 1 - j) * 2 ^ A_part (a₀ :: tl) (j + 1) := by
-
-    rw [hC_w, mul_add, pow_succ']
-
-  -- 실제로 rotateLeftOne 의 각 항 계수는 3^{(m+1) - 1 - j} = 3^{m - j} = 3 * 3^{m - 1 - j} 이다!
-
-  -- 위 hC_rot 에서 (m + 1) - 1 - j = m - j 이므로 이를 정확히 반영하여 다시 정리:
-
-  clear hC_rot h_2a0_rot h_3Cw
+  -- NO-GO (discarded local intermediate, retained in Git history and Archive):
+  -- the coefficient 3^(m-1-j) is FALSE for the rotated first m terms.
+  -- For a₀ = 1, tl = [1], it would imply C_p [1,1] = 3, but C_p [1,1] = 5.
+  -- The correct exponent is m-j; use hC_rot_exact, without weakening the theorem.
 
   have hC_rot_exact : C_p (rotateLeftOne (a₀ :: tl)) =
 

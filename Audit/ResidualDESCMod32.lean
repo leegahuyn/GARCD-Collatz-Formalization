@@ -60,7 +60,7 @@ theorem Syracuse_descent_mod32_11 (n : ℕ) (hn : 3 ≤ n)
         Nat.mul_le_mul_right _ hpow
       _ = 3 * F (F n) + 1 := two_pow_v2_mul_F (F (F n))
   change F (F (F n)) < n
-  rw [hF2] at hbound
+  rw [hF2] at hbound ⊢
   omega
 
 /-- The exact integer DESC inequality follows from the proved drop,

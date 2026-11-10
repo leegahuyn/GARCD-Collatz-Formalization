@@ -25,7 +25,11 @@ jobs:
         run: |
           set -o pipefail
           mkdir -p Diagnostics/logs
-          /usr/bin/time -v lake build GARCD.SupportFiniteCertificates 2>&1 | tee Diagnostics/logs/heavy-finite-build.log
+          for m in SupportCert10 SupportCert11 SupportCert13 SupportCert14 SupportCert15 SupportCert16 SupportFiniteCertificates; do
+            echo "::group::GARCD.$m"
+            /usr/bin/time -v lake build "GARCD.$m" 2>&1 | tee "Diagnostics/logs/heavy-$m.log"
+            echo "::endgroup::"
+          done
       - name: Print exact certificate axiom dependencies
         shell: bash
         run: |
@@ -37,5 +41,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: GARCD-heavyweight-certificate-direct
-          path: Diagnostics/logs/heavy-finite-*.log
+          path: Diagnostics/logs/heavy-*.log
           if-no-files-found: warn

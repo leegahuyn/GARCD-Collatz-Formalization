@@ -123,11 +123,8 @@ theorem actualHausdorffMeasure_zero_of_geometric_envelope
 
   apply lowValuation_hausdorffMeasure_zero_of_exact_tail_cost
 
-  simpa [GARCDActualTailCost] using
-
-    actualTailCost_tendsto_of_geometric_envelope
-
-      β s K ρ hρ hEnvelope
+  exact actualTailCost_tendsto_of_geometric_envelope
+    β s K ρ hρ hEnvelope
 
 
 

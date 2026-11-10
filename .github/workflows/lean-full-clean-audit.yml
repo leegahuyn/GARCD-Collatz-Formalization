@@ -1,0 +1,67 @@
+name: GARCD full two-clean-build and axiom audit
+
+on:
+  push:
+    branches: ['research/fix-module11-doccomment-2026-11-10']
+    paths:
+      - 'GARCD/Module11.lean'
+      - 'GARCD/Module12.lean'
+      - '.github/workflows/lean-full-clean-audit.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: garcd-clean-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  full-clean-proof-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean toolchain
+        shell: bash
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh |
+            sh -s -- -y --default-toolchain none --no-modify-path
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Resolve pinned Mathlib and cache
+        shell: bash
+        run: |
+          lake update
+          lake exe cache get
+      - name: Preflight Module11 and Module12
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p Diagnostics/full
+          git rev-parse HEAD | tee Diagnostics/full/commit.txt
+          lake build GARCD.Module11 GARCD.Module12 2>&1 | tee Diagnostics/full/frontiers.log
+      - name: Clean build 1 of 2 (full GARCD target)
+        shell: bash
+        run: |
+          set -o pipefail
+          lake clean
+          lake build GARCD 2>&1 | tee Diagnostics/full/clean1.log
+      - name: Clean build 2 of 2 (full GARCD target)
+        shell: bash
+        run: |
+          set -o pipefail
+          lake clean
+          lake build GARCD 2>&1 | tee Diagnostics/full/clean2.log
+      - name: Kernel axiom audit after both clean builds
+        shell: bash
+        run: |
+          set -o pipefail
+          lake env lean Audit/AxiomAudit.lean 2>&1 | tee Diagnostics/full/axioms.log
+          if grep -E 'sorryAx|unsound' Diagnostics/full/axioms.log; then
+            echo 'Unexpected axiom marker; audit failed.'
+            exit 1
+          fi
+      - name: Upload all available verification logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GARCD-full-clean-builds-and-axioms
+          path: Diagnostics/full/
+          if-no-files-found: warn

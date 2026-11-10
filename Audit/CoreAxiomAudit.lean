@@ -27,6 +27,41 @@ theorem UniversalDESCGoal_iff_CollatzConjectureProp :
   exact Theorem_10_2_1_DESC_Iff_Arithmetic_Inequality.symm.trans
     Theorem_10_2_2_DESC_Iff_Collatz_Conjecture
 
+/-- Every generated positive composition has its claimed length and exponent
+sum. This supports future analytic replacement of brute-force word enumeration. -/
+theorem compositionsPos_mem_sound
+    (p A : ℕ) (w : List ℕ) (hw : w ∈ compositionsPos p A) :
+    w.length = p ∧ A_total w = A ∧ ∀ a ∈ w, 1 ≤ a := by
+  induction p generalizing A w with
+  | zero =>
+      cases A with
+      | zero =>
+          have hw_nil : w = [] := by simpa [compositionsPos] using hw
+          subst w
+          simp [A_total]
+      | succ A =>
+          simp [compositionsPos] at hw
+  | succ p ih =>
+      simp only [compositionsPos] at hw
+      split_ifs at hw with hlt
+      · simp at hw
+      · simp only [List.mem_flatMap, List.mem_map] at hw
+        rcases hw with ⟨d, hd, tl, htl, heq⟩
+        subst w
+        have hd_lt : d < A - p := List.mem_range.mp hd
+        have ha_le : d + 1 ≤ A := by omega
+        obtain ⟨hlen, hsum, hpos⟩ := ih (A - (d + 1)) tl htl
+        constructor
+        · simp [hlen]
+        constructor
+        · simp only [A_total, List.sum_cons] at hsum ⊢
+          omega
+        · intro a ha
+          simp only [List.mem_cons] at ha
+          rcases ha with rfl | ha
+          · omega
+          · exact hpos a ha
+
 end GARCD
 
 #print axioms GARCD.Theorem_10_2_1_DESC_Iff_Arithmetic_Inequality
@@ -35,3 +70,4 @@ end GARCD
 #print axioms GARCD.GARCD_Complete_Unconditional_Equivalences_And_Regimes
 #print axioms GARCD.UniversalDESCGoal_iff_CollatzConjectureProp
 #print axioms GARCD.Theorem_12_5_3_Exact_Invariant_Mod_Sieve_Certificate
+#print axioms GARCD.compositionsPos_mem_sound

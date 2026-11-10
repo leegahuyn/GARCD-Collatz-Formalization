@@ -1,0 +1,50 @@
+name: GARCD core axiom and universal DESC target audit
+
+on:
+  push:
+    branches: ['research/fix-module11-doccomment-2026-11-10']
+    paths:
+      - 'Audit/CoreAxiomAudit.lean'
+      - '.github/workflows/lean-core-axiom-audit.yml'
+  workflow_dispatch:
+
+jobs:
+  verify-core:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean toolchain
+        shell: bash
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh |
+            sh -s -- -y --default-toolchain none --no-modify-path
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Resolve Mathlib pinned dependency
+        shell: bash
+        run: |
+          lake update
+          lake exe cache get
+      - name: Kernel compile Module12
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p Diagnostics/core
+          git rev-parse HEAD | tee Diagnostics/core/commit.txt
+          lake build GARCD.Module12 2>&1 | tee Diagnostics/core/module12.log
+      - name: Compile universal DESC equivalence and print exact theorem axioms
+        shell: bash
+        run: |
+          set -o pipefail
+          lake env lean Audit/CoreAxiomAudit.lean 2>&1 | tee Diagnostics/core/axioms.log
+          if grep -E 'sorryAx|unsound' Diagnostics/core/axioms.log; then
+            echo "Unexpected proof axiom marker."
+            exit 1
+          fi
+      - name: Upload kernel audit logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GARCD-core-DESC-equivalence-and-axiom-logs
+          path: Diagnostics/core/
+          if-no-files-found: warn

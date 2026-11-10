@@ -1,0 +1,49 @@
+name: GARCD prove two additional residue families and exact remaining 13
+on:
+  push:
+    branches: ['research/desc-remaining13-2026-11-10']
+    paths:
+      - 'GARCD/ResidualDESCFurther.lean'
+      - '.github/workflows/lean-desc-remaining13.yml'
+  workflow_dispatch:
+
+jobs:
+  prove-desc:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        shell: bash
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh |
+            sh -s -- -y --default-toolchain none --no-modify-path
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Restore pinned Mathlib
+        shell: bash
+        run: |
+          lake update
+          lake exe cache get
+      - name: Build new DESC theorem module from exact imported sources
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p Diagnostics/desc-13
+          git rev-parse HEAD | tee Diagnostics/desc-13/commit.txt
+          lake build GARCD.ResidualDESCFurther 2>&1 | tee Diagnostics/desc-13/module.log
+      - name: Print transitive axioms for every new theorem
+        shell: bash
+        run: |
+          set -o pipefail
+          lake env lean GARCD/ResidualDESCFurther.lean 2>&1 | tee Diagnostics/desc-13/axioms.log
+          if grep -E 'sorryAx|unsound|_native\\.native_decide\\.ax_' Diagnostics/desc-13/axioms.log; then
+            echo 'Unsafe proof dependency'
+            exit 1
+          fi
+      - name: Save complete diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GARCD-residual-13-proof-logs
+          path: Diagnostics/desc-13/
+          if-no-files-found: warn

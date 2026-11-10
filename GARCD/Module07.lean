@@ -323,19 +323,16 @@ lemma w_GARCD_4_10_length_and_sum {k p : ℕ} (hk : 1 ≤ k) (hkp : k ≤ p) (t 
 
 
 
-/-- **정리 4.10 (임의의 고정된 잔존 항 수 `k`를 갖는 무한 원시 비소거 계열 및 `C_p(w) > D(w)` 증명; 보충본 p.7)**:
+/-- **CORRECTED — GARCD 정리 4.10의 길이·합 및 유한 대표 증명서**.
 
-    (1) 모든 `1 ≤ k ≤ p`와 `t`에 대해 `w = w_GARCD_4_10 k p t`의 길이는 `p`, 총 지수합은 `A = p + 2k + 4t`이다.
+    기존 `t = 1, k = 3, p = 19` 대표는 **NO-GO**: `2^29 < 3^19`,
+    `D_nat [7,3,3,1^16] = 0`이므로 원문의 `D_nat = 327245205`는 거짓.
+    수정 대표: `t = 2, k = 3, p = 19`, `w = [11,3,3,1^16]`,
+    `A=33`, `D_nat=7427673125>0`, `C_p%5=2`, 따라서 `D_nat ∤ C_p`.
+    이 정리는 모든 가족 원소의 비가분성은 증명하지 않는다.
+    원문의 원문·반례는 Diagnostics/NO_GO_Module07_2026-11-10.md 및 Git 이력에 보존한다. -/
 
-    (2) `p - k`가 짝수(`(p - k) % 2 = 0`)이고 `3^p ≤ 2^A`이면, `A - 3p`는 짝수이고 `2^2 ≡ 4 ≡ -1 (mod 5)`, `3^2 ≡ 4 ≡ -1 (mod 5)`로부터
-
-        항상 `5 ∣ D_nat w`가 성립한다.
-
-    (3) 명시적 대표 원소 `(k = 3, p = 19, t = 1)` (`w = (7, 3, 3, 1^{16})`, `A = 29`)에서
-
-        `5 ∣ D_nat w`, `¬ (5 ∣ C_p w)` (`C_p w % 5 = 2`), `D_nat w < C_p w`, 그리고 `¬ (D_nat w ∣ C_p w)` 가 성립한다. -/
-
-theorem Theorem_4_10_Infinite_Nonvanishing_Family_Properties
+theorem Theorem_4_10_Family_Length_Sum_And_Corrected_Certificate
 
     {k p t : ℕ} (hk : 1 ≤ k) (hkp : k ≤ p) :
 
@@ -345,17 +342,17 @@ theorem Theorem_4_10_Infinite_Nonvanishing_Family_Properties
 
     -- 대표 원소 (k=3, p=19, t=1) 완전 검산
 
-    D_nat (w_GARCD_4_10 3 19 1) = 327245205 ∧
+    D_nat (w_GARCD_4_10 3 19 2) = 7427673125 ∧
 
-    5 ∣ D_nat (w_GARCD_4_10 3 19 1) ∧
+    5 ∣ D_nat (w_GARCD_4_10 3 19 2) ∧
 
-    C_p (w_GARCD_4_10 3 19 1) % 5 = 2 ∧
+    C_p (w_GARCD_4_10 3 19 2) % 5 = 2 ∧
 
-    ¬ (5 ∣ C_p (w_GARCD_4_10 3 19 1)) ∧
+    ¬ (5 ∣ C_p (w_GARCD_4_10 3 19 2)) ∧
 
-    D_nat (w_GARCD_4_10 3 19 1) < C_p (w_GARCD_4_10 3 19 1) ∧
+    D_nat (w_GARCD_4_10 3 19 2) < C_p (w_GARCD_4_10 3 19 2) ∧
 
-    ¬ (D_nat (w_GARCD_4_10 3 19 1) ∣ C_p (w_GARCD_4_10 3 19 1)) := by
+    ¬ (D_nat (w_GARCD_4_10 3 19 2) ∣ C_p (w_GARCD_4_10 3 19 2)) := by
 
   obtain ⟨hlen, hsum⟩ := w_GARCD_4_10_length_and_sum hk hkp t
 

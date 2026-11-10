@@ -77,10 +77,8 @@ private theorem GARCD_31_one_is_absorbing (j : ℕ) :
   | zero => rfl
 
   | succ j ih =>
-
-    change F (x_seq 1 j) = 1
-
-    rw [ih, F_one_eq_one]
+    unfold x_seq at ih ⊢
+    rw [Function.iterate_succ_apply', ih, F_one_eq_one]
 
 
 

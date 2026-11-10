@@ -27,6 +27,20 @@ theorem UniversalDESCGoal_iff_CollatzConjectureProp :
   exact Theorem_10_2_1_DESC_Iff_Arithmetic_Inequality.symm.trans
     Theorem_10_2_2_DESC_Iff_Collatz_Conjecture
 
+/-- Unconditional arithmetic DESC on two explicitly verified infinite residue classes.
+    This is only a proper SUBSET of the universal odd inputs, not the open full goal. -/
+theorem UniversalDESCGoal_mod4_mod16_partial
+    (n : ℕ) (hn : 3 ≤ n) (hclass : n % 4 = 1 ∨ n % 16 = 3) :
+    ∃ r : ℕ, 1 ≤ r ∧
+      (C_orbit n r : ℤ) <
+        ((2 : ℤ) ^ A_orbit n r - (3 : ℤ) ^ r) * (n : ℤ) := by
+  obtain ⟨h4, h16⟩ := Theorem_12_5_2_Mod4_And_Mod16_Universal_Descent n hn
+  rcases hclass with hmod4 | hmod16
+  · refine ⟨1, by omega, ?_⟩
+    exact (GARCD_4_2_Exact_Descent_Iff n 1).mp (h4 hmod4)
+  · refine ⟨2, by omega, ?_⟩
+    exact (GARCD_4_2_Exact_Descent_Iff n 2).mp (h16 hmod16)
+
 end GARCD
 
 #print axioms GARCD.Theorem_10_2_1_DESC_Iff_Arithmetic_Inequality
@@ -35,3 +49,4 @@ end GARCD
 #print axioms GARCD.GARCD_Complete_Unconditional_Equivalences_And_Regimes
 #print axioms GARCD.UniversalDESCGoal_iff_CollatzConjectureProp
 #print axioms GARCD.Theorem_12_5_3_Exact_Invariant_Mod_Sieve_Certificate
+#print axioms GARCD.UniversalDESCGoal_mod4_mod16_partial

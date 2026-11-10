@@ -1290,7 +1290,7 @@ theorem Theorem_12_4_2_SturmianReal_Aperiodic_Of_Irrational
         (k : ℝ) * (S : ℝ) := by
 
       have h_eq_real := congrArg (fun z : ℤ => (z : ℝ)) h_eq_k
-      push_cast at h_eq_real
+      push_cast at h_eq_real ⊢
       linarith
 
     have h_f1_le : (⌊((j₀ + k * p : ℕ) : ℝ) * α + β⌋ : ℝ) ≤ ((j₀ + k * p : ℕ) : ℝ) * α + β :=

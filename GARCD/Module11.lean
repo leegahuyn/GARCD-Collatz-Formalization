@@ -2027,14 +2027,15 @@ lemma twoAdicValuationCylinder_ediam_rpow_le
     ring
 
   have h_ennreal_pow :
-
       (ENNReal.ofReal ((2 : ℝ) ^ (-(k : ℤ)))) ^ s =
-
         (ENNReal.ofReal ((2 : ℝ) ^ (-s))) ^ k := by
-
-    rw [← ENNReal.ofReal_rpow_of_pos (by positivity), h_real_pow,
-
-        ENNReal.ofReal_pow (by positivity)]
+    calc
+      (ENNReal.ofReal ((2 : ℝ) ^ (-(k : ℤ)))) ^ s =
+          ENNReal.ofReal (((2 : ℝ) ^ (-(k : ℤ))) ^ s) :=
+            ENNReal.ofReal_rpow_of_pos (by positivity)
+      _ = ENNReal.ofReal (((2 : ℝ) ^ (-s)) ^ k) := by rw [h_real_pow]
+      _ = (ENNReal.ofReal ((2 : ℝ) ^ (-s))) ^ k := by
+        rw [ENNReal.ofReal_pow (by positivity)]
 
   exact le_trans h_rpow (le_of_eq h_ennreal_pow)
 
@@ -2170,7 +2171,9 @@ theorem exactOriginalFiberTransfer_proved : ExactOriginalFiberTransfer := by
 
           exact A_total_ge_length_of_all_pos i.val.2 hpos
 
-        have hAB : A ≤ B := Nat.le_floor i.property.2
+        have hABreal : (A : ℝ) ≤ β * (r : ℝ) := by
+          simpa [A, A_total, hir] using i.property.2
+        have hAB : A ≤ B := Nat.le_floor hABreal
 
         have hA_mem : A ∈ Finset.Ico r (B + 1) := Finset.mem_Ico.mpr ⟨hrA, Nat.lt_succ_of_le hAB⟩
 
@@ -2770,18 +2773,19 @@ lemma dimBound_lt_one {β : ℝ} (hβ1 : 1 < β) (hβ2 : β < 2) :
 
     dsimp [p]
 
-    rw [one_div_div, Real.log_div (ne_of_gt hβ_pos) (by positivity),
-
-        Real.log_mul (by norm_num) (ne_of_gt hβm1_pos)]
-
+    have hden : 2 * ((β - 1) / β) = (2 * (β - 1)) / β := by ring
+    rw [hden, one_div_div,
+      Real.log_div (ne_of_gt hβ_pos)
+        (mul_ne_zero (by norm_num) (ne_of_gt hβm1_pos)),
+      Real.log_mul (by norm_num : (2 : ℝ) ≠ 0) (ne_of_gt hβm1_pos)]
     ring
 
   have h_log2 : Real.log (1 / (2 * q)) = -Real.log 2 + Real.log β := by
 
     dsimp [q]
 
-    rw [one_div_div, Real.log_div (ne_of_gt hβ_pos) (by norm_num), Real.log_one]
-
+    have hden : 2 * (1 / β) = 2 / β := by ring
+    rw [hden, one_div_div, Real.log_div (ne_of_gt hβ_pos) (by norm_num : (2 : ℝ) ≠ 0)]
     ring
 
   have hI_pos : 0 < RateFunctionI β := by

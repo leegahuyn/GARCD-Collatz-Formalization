@@ -7,9 +7,11 @@ private theorem compositionsPos_len_rec (p A : ℕ) (h : p + 1 ≤ A) :
     (compositionsPos (p + 1) A).length =
       ∑ d ∈ Finset.range (A - p),
         (compositionsPos p (A - (d + 1))).length := by
-  unfold compositionsPos
+  change (if A < p + 1 then ([] : List (List ℕ)) else
+    (List.range (A - p)).flatMap (fun d =>
+      (compositionsPos p (A - (d + 1))).map (fun tl => (d + 1) :: tl))).length = _
   simp only [if_neg (show ¬ A < p + 1 by omega),
-    List.length_flatMap, List.length_map, List.map_map, Function.comp_def]
+    List.length_flatMap, List.length_map]
   rw [List.sum_toFinset _ (List.nodup_range)]
   simp
 
@@ -36,11 +38,11 @@ theorem compositionsPos_length_eq_choose (p A : ℕ)
         have heq : A = (A - 1) + 1 := by omega
         rw [heq, Finset.sum_range_succ]
         have hzero : (∑ d ∈ Finset.range (A - 1),
-            if A - (d + 1) = 0 then 1 else 0) = 0 := by
+            if A - 1 + 1 - (d + 1) = 0 then 1 else 0) = 0 := by
           apply Finset.sum_eq_zero
           intro d hd
           have hd_lt : d < A - 1 := Finset.mem_range.mp hd
-          simp [show A - (d + 1) ≠ 0 by omega]
+          simp [show A - 1 + 1 - (d + 1) ≠ 0 by omega]
         rw [hzero]
         simp [show A - ((A - 1) + 1) = 0 by omega]
       · have hp1 : 1 ≤ p := by omega

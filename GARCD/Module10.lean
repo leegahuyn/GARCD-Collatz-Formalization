@@ -40,7 +40,10 @@ lemma T_iterate_v2_eq_div (m : ℕ) :
 
     (T^[v2 m]) m = m / 2 ^ v2 m := by
 
-  have hm_ne : m ≠ 0 := by omega
+  by_cases hm0 : m = 0
+  · subst m
+    norm_num [v2]
+  have hm_ne : m ≠ 0 := hm0
 
   have h_dvd : 2 ^ v2 m ∣ m := by
     unfold v2
@@ -56,9 +59,11 @@ lemma T_iterate_v2_eq_div (m : ℕ) :
 
     exact h_ord.symm
 
-  conv_lhs => rw [hm_eq]
-
-  rw [T_iterate_two_pow_mul (v2 m) q]
+  calc
+    (T^[v2 m]) m = (T^[v2 m]) (2 ^ v2 m * q) :=
+      congrArg (fun t => (T^[v2 m]) t) hm_eq
+    _ = q := T_iterate_two_pow_mul (v2 m) q
+    _ = m / 2 ^ v2 m := rfl
 
 
 
@@ -129,8 +134,7 @@ lemma syracuse_reaches_one_imp_collatz_reaches_one {n : ℕ} (hn_odd : n % 2 = 1
       have hodd_r : x_seq n r % 2 = 1 := x_seq_odd hn_odd r
 
       rw [← F_eq_T_iterate_of_odd hodd_r]
-
-      rfl
+      simp [x_seq, Function.iterate_succ_apply']
 
   obtain ⟨k, hk⟩ := h_iter R
 
@@ -527,7 +531,11 @@ theorem Lemma_10_3_1_A0_Cycle_Iff_Divisibility :
 
     rw [hw_len] at hj
 
-    simp [w, orbit_word, List.getD_eq_getElem _ 0 (by simp [orbit_word, hj])]
+    have hj_word : j < (orbit_word m p).length := by
+      simpa [orbit_word] using hj
+    change a_seq m j = (orbit_word m p).getD j 0
+    rw [List.getD_eq_getElem _ 0 hj_word]
+    simp [orbit_word]
 
   constructor
 

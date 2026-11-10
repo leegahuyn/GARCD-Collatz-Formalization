@@ -542,7 +542,10 @@ lemma S_repeat_factor_pos (w : List ℕ) {k : ℕ} (hk : 1 ≤ k) :
 
   have hterm : 0 < 2 ^ (A_total w * (k - 1 - 0)) * 3 ^ (w.length * 0) := by positivity
 
-  exact lt_of_lt_of_le hterm (single_le_sum (fun _ _ => Nat.zero_le _) h0)
+  refine lt_of_lt_of_le hterm ?_
+  exact Finset.single_le_sum
+    (fun t (_ht : t ∈ range k) =>
+      Nat.zero_le (2 ^ (A_total w * (k - 1 - t)) * 3 ^ (w.length * t))) h0
 
 
 
@@ -581,9 +584,8 @@ lemma repeatWord_add (v : List ℕ) (a b : ℕ) :
   | succ a ih =>
 
     rw [Nat.succ_add]
-
-    unfold repeatWord
-
+    change v ++ repeatWord v (a + b) =
+      (v ++ repeatWord v a) ++ repeatWord v b
     rw [ih, List.append_assoc]
 
 
@@ -600,8 +602,8 @@ lemma repeatWord_mul (v : List ℕ) (a b : ℕ) :
 
   | succ b ih =>
 
-    unfold repeatWord
-
+    change repeatWord v a ++ repeatWord (repeatWord v a) b =
+      repeatWord v (a * (b + 1))
     rw [ih, Nat.mul_succ, Nat.add_comm (a * b) a, repeatWord_add]
 
 
@@ -843,8 +845,9 @@ theorem Theorem_11_2_9_A0_Manuscript_Iff_NoNontrivialCycle :
           rw [Nat.succ_mul, x_seq, Nat.add_comm (t * p) p, Function.iterate_add_apply]
 
           change F^[p] (x_seq m (t * p)) = m
-
-          rw [ih, hper]
+          rw [ih]
+          change x_seq m p = m
+          exact hper
 
       have h_at_Rp : x_seq m (R * p) = 1 := by
 
@@ -1338,7 +1341,7 @@ theorem Theorem_11_2_11_Manuscript_A0_And_B0_Iff_Collatz_Conjecture :
 
       let w : List ℕ := (List.range p).map (fun i => a (j₀ + i))
 
-      have hw_len : w.length = p := List.length_map _
+      have hw_len : w.length = p := by simp [w]
 
       have hw_pos : ∀ x ∈ w, 1 ≤ x := by
 
@@ -2327,8 +2330,6 @@ lemma GARCDRealLevelCost_zero_le_one (β : ℝ) {s : ℝ} (hs : 0 < s) :
   rw [h_eq]
 
   dsimp [f, i₀]
-
-  rw [if_pos rfl]
 
   have h_le := twoAdicValuationCylinder_ediam_rpow_le [] hs
 

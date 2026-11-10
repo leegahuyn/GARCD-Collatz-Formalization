@@ -150,7 +150,7 @@ theorem Lemma_5_1_Distribution_Free_Correction_Upper_Bound
 
     have h_sub : (∑ j ∈ Ico 1 p, 3 ^ (p - 1 - j) * 2 ^ j) = 2 * 3 ^ (p - 1) - 2 ^ p := by
       rw [← h_ico]
-      omega
+      simp
 
     rwa [h_sub] at h_sum_le
 
@@ -252,19 +252,17 @@ theorem GARCD_39_Concentrated_Block_Exclusion_3D
     omega
 
   have h_D_gt : (2 ^ (t - 1) - 1) * 3 ^ p < D_nat w := by
-
-    unfold D_nat
-
-    rw [Nat.sub_mul, one_mul]
-
     have h_ge1 : 1 ≤ 2 ^ (t - 1) := Nat.one_le_pow _ 2 (by omega)
-
     have h_3p_le : 3 ^ p ≤ 2 ^ (t - 1) * 3 ^ p := by
       calc
         3 ^ p = 1 * 3 ^ p := by ring
         _ ≤ 2 ^ (t - 1) * 3 ^ p := Nat.mul_le_mul_right _ h_ge1
-
-    omega
+    have h_gt : 2 ^ (t - 1) * 3 ^ p < 2 ^ A_total w := hA_gt
+    calc
+      (2 ^ (t - 1) - 1) * 3 ^ p
+          = 2 ^ (t - 1) * 3 ^ p - 3 ^ p := by rw [Nat.sub_mul, one_mul]
+      _ < 2 ^ A_total w - 3 ^ p := by omega
+      _ = D_nat w := by rfl
 
   have h_3C_lt_9D : 3 * C_p w < 9 * D_nat w := by
 
@@ -296,13 +294,9 @@ theorem GARCD_39_Concentrated_Block_Exclusion_3D
     omega
 
   have hA_ge1 : 1 ≤ A_total w := by
-
-    have := A_part_mono_add hw (Nat.zero_le p) (le_refl p)
-
-    unfold A_total
-
-    simp [A_part] at this
-
+    have hpart := A_part_mono_add hw (Nat.zero_le p) (le_refl p)
+    have hbound : w.length ≤ A_total w := by
+      simpa [p, A_part, A_total] using hpart
     omega
 
   have hD_odd : D_nat w % 2 = 1 :=
@@ -381,19 +375,17 @@ theorem GARCD_40_Concentrated_Block_Exclusion_7D
     omega
 
   have h_D_gt : (2 ^ (t - 2) - 1) * 3 ^ p < D_nat w := by
-
-    unfold D_nat
-
-    rw [Nat.sub_mul, one_mul]
-
     have h_ge1 : 1 ≤ 2 ^ (t - 2) := Nat.one_le_pow _ 2 (by omega)
-
     have h_3p_le : 3 ^ p ≤ 2 ^ (t - 2) * 3 ^ p := by
       calc
         3 ^ p = 1 * 3 ^ p := by ring
         _ ≤ 2 ^ (t - 2) * 3 ^ p := Nat.mul_le_mul_right _ h_ge1
-
-    omega
+    have h_gt : 2 ^ (t - 2) * 3 ^ p < 2 ^ A_total w := hA_gt
+    calc
+      (2 ^ (t - 2) - 1) * 3 ^ p
+          = 2 ^ (t - 2) * 3 ^ p - 3 ^ p := by rw [Nat.sub_mul, one_mul]
+      _ < 2 ^ A_total w - 3 ^ p := by omega
+      _ = D_nat w := by rfl
 
   have h_3C_lt_21D : 3 * C_p w < 21 * D_nat w := by
 
@@ -423,13 +415,9 @@ theorem GARCD_40_Concentrated_Block_Exclusion_7D
     omega
 
   have hA_ge1 : 1 ≤ A_total w := by
-
-    have := A_part_mono_add hw (Nat.zero_le p) (le_refl p)
-
-    unfold A_total
-
-    simp [A_part] at this
-
+    have hpart := A_part_mono_add hw (Nat.zero_le p) (le_refl p)
+    have hbound : w.length ≤ A_total w := by
+      simpa [p, A_part, A_total] using hpart
     omega
 
   have hD_odd : D_nat w % 2 = 1 :=
@@ -529,7 +517,7 @@ lemma wordSwapAdj_length_and_total (pre suf : List ℕ) (x y : ℕ) :
 
              List.sum_append, List.sum_cons, List.sum_nil]
 
-  refine ⟨by ring, by ring, by ring, by ring⟩
+  refine ⟨by rfl, by ring, by rfl, by ring⟩
 
 
 
@@ -828,7 +816,7 @@ theorem GARCD_42A_Cyclic_Swap_Universal_Nondivisibility
     unfold D_nat at hD_gt1
 
     rw [hA0, pow_zero] at hD_gt1
-    have h3pos : 1 ≤ 3 ^ w.length := by positivity
+    have h3pos : 1 ≤ 3 ^ w.length := Nat.one_le_pow w.length 3 (by omega)
     omega
 
   have hdvd_rot1 : D_nat w ∣ C_p (rotateLeft w k₁) :=

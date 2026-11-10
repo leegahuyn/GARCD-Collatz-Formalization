@@ -174,7 +174,7 @@ lemma C_p_odd_of_pos_word {w : List ℕ} (hw : ∀ a ∈ w, 1 ≤ a) (hp : 1 ≤
 
     | zero => rfl
 
-    | succ m ih => rw [pow_succ]; omega
+    | succ m ih => simpa [pow_succ, Nat.mul_mod, ih]
 
   have h_sum_even : (∑ i ∈ range k, 3 ^ (k - 1 - i) * 2 ^ (w.take (i + 1)).sum) % 2 = 0 := by
 
@@ -188,11 +188,11 @@ lemma C_p_odd_of_pos_word {w : List ℕ} (hw : ∀ a ∈ w, 1 ≤ a) (hp : 1 ≤
 
       have h_ge1 : 1 ≤ (w.take (i + 1)).sum := by
 
-        change 1 ≤ A_part w (i + 1)
+        have hbound := A_part_mono_add hw (Nat.zero_le (i + 1))
+          (by omega : i + 1 ≤ w.length)
 
-        have := A_part_mono_add hw (Nat.zero_le (i + 1)) (by omega)
-
-        simp [A_part] at this
+        have h_lower : i + 1 ≤ (w.take (i + 1)).sum := by
+          simpa [A_part] using hbound
 
         omega
 
@@ -204,7 +204,16 @@ lemma C_p_odd_of_pos_word {w : List ℕ} (hw : ∀ a ∈ w, 1 ≤ a) (hp : 1 ≤
 
     exact Nat.mod_eq_zero_of_dvd hdvd
 
-  omega
+  have hsum_align :
+      (∑ i ∈ range k, 3 ^ (k - (i + 1)) * 2 ^ (w.take (i + 1)).sum) =
+      ∑ i ∈ range k, 3 ^ (k - 1 - i) * 2 ^ (w.take (i + 1)).sum := by
+    apply Finset.sum_congr rfl
+    intro i hi
+    have hexp : k - (i + 1) = k - 1 - i := by omega
+    rw [hexp]
+
+  rw [hsum_align, Nat.add_mod, h_sum_even, h3_odd]
+  norm_num
 
 
 
@@ -310,7 +319,7 @@ theorem Theorem_14_2_Cycle_Realization_Iff
 
         have hprod_odd : (D_nat w * n) % 2 = 1 := by rw [← hn_eq]; exact hC_odd
 
-        omega
+        simpa [Nat.mul_mod, hD_odd] using hprod_odd
 
       have h_2An : 3 ^ w.length * n + C_p w = 2 ^ A_total w * n := by
 
@@ -368,7 +377,7 @@ theorem Theorem_14_2_Cycle_Realization_Iff
 
         have hprod_odd : (D_nat w * n) % 2 = 1 := by rw [← hn_eq]; exact hC_odd
 
-        omega
+        simpa [Nat.mul_mod, hD_odd] using hprod_odd
 
       have h_2An : 3 ^ w.length * n + C_p w = 2 ^ A_total w * n := by
 

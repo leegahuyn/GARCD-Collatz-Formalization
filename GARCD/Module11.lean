@@ -2465,10 +2465,15 @@ lemma dimBound_nonneg {β : ℝ} (hβ1 : 1 < β) :
   refine div_nonneg ?_ (mul_pos hβ_pos hlog2_pos).le
 
   have h_log_pos : 0 < Real.log β := Real.log_pos hβ1
-
-  have h_log_m1_neg : Real.log (β - 1) ≤ 0 := Real.log_nonpos (by linarith) (by linarith)
-
-  nlinarith
+  have hm1_pos : 0 < β - 1 := by linarith
+  have h_log_mon : Real.log (β - 1) ≤ Real.log β :=
+    (Real.log_lt_log hm1_pos (by linarith)).le
+  have h_log_diff : 0 ≤ Real.log β - Real.log (β - 1) :=
+    sub_nonneg.mpr h_log_mon
+  calc
+    β * Real.log β - (β - 1) * Real.log (β - 1) =
+        Real.log β + (β - 1) * (Real.log β - Real.log (β - 1)) := by ring
+    _ ≥ 0 := add_nonneg h_log_pos.le (mul_nonneg (by linarith) h_log_diff)
 
 
 
@@ -2822,7 +2827,7 @@ lemma dimBound_lt_one {β : ℝ} (hβ1 : 1 < β) (hβ2 : β < 2) :
 
     모든 `1 < β < 2`에 대하여 실제 2진 저지수 예외집합 `LowValuationExceptionSet β`의 하우스도르프 차원은
 
-    `MeasureTheory.dimH (LowValuationExceptionSet β) ≤ ENNReal.ofReal (DimBound β)` 를 만족한다! -/
+    `dimH (LowValuationExceptionSet β) ≤ ENNReal.ofReal (DimBound β)` 를 만족한다! -/
 
 theorem unconditionalActualHausdorffGoal_proved : UnconditionalActualHausdorffGoal := by
 
@@ -2872,7 +2877,7 @@ theorem unconditionalActualHausdorffGoal_proved : UnconditionalActualHausdorffGo
 
     actualHausdorffMeasure_zero_of_geometric_envelope β s_real K ρ hρ hEnv
 
-  have hdim_le_s : MeasureTheory.dimH (LowValuationExceptionSet β) ≤ (s_nn : ENNReal) :=
+  have hdim_le_s : dimH (LowValuationExceptionSet β) ≤ (s_nn : ENNReal) :=
 
     dimH_le_of_hausdorffMeasure_zero_corrected (LowValuationExceptionSet β) s_nn hzero
 

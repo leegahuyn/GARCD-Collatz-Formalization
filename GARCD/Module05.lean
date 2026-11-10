@@ -138,11 +138,14 @@ theorem GARCD_31_Exact_Word_Counts_4734620 :
 
 
 
+section ExhaustiveCertificateDepth
+
+set_option maxRecDepth 8192
+
 /-- **정리 16.1c (GARCD-31: `p ≤ 8` 전수 합성 검산 증명서; 원본 v0.3 p.33)**:
 
     `(p, A) = (5, 8)`의 35개 블록 및 `(p, A) = (8, 13)`의 792개 블록 전체에서 `C_p(w) mod D(w) ≠ 0` 이다. -/
 
-set_option maxRecDepth 8192 in
 theorem GARCD_31_Exhaustive_Certificate_p5_p8 :
 
     (compositionsPos 5 8).length = 35 ∧
@@ -154,6 +157,8 @@ theorem GARCD_31_Exhaustive_Certificate_p5_p8 :
     checkNoCycleHits 8 13 = true := by
 
   decide
+
+end ExhaustiveCertificateDepth
 
 
 
@@ -334,7 +339,10 @@ theorem GARCD_32_Infinite_Family_Nondivisibility
   have hC_pos : 0 < C_p (w_GARCD32 p A) := by omega
 
   have hC_lt_D : C_p (w_GARCD32 p A) < D_nat (w_GARCD32 p A) := by
-    have h_bound : 3 ^ p - 2 ^ p < 2 ^ A - 3 ^ p := by omega
+    have h_bound : 3 ^ p - 2 ^ p < 2 ^ A - 3 ^ p := by
+      have h2pos : 0 < 2 ^ p := by positivity
+      have h3pos : 0 < 3 ^ p := by positivity
+      omega
     simpa only [D_nat, hlen, hsum, hC] using h_bound
 
   refine ⟨by norm_num, hC, hC_pos, hC_lt_D, ?_⟩

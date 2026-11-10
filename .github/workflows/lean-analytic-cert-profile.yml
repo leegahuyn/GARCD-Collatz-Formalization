@@ -1,0 +1,54 @@
+name: GARCD analytic finite certificate proof compilation
+
+on:
+  push:
+    branches: ['research/analytic-finite-cert-2026-11-10']
+    paths:
+      - 'GARCD/SupportFiniteCertificates.lean'
+      - 'GARCD/SupportP16Certificates.lean'
+      - '.github/workflows/lean-analytic-cert-profile.yml'
+  workflow_dispatch:
+
+jobs:
+  prove-all-compositions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Lean toolchain
+        shell: bash
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh |
+            sh -s -- -y --default-toolchain none --no-modify-path
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Resolve pinned Mathlib dependencies
+        shell: bash
+        run: |
+          lake update
+          lake exe cache get
+      - name: Compile P16 and all finite word certificates with kernel proofs
+        shell: bash
+        run: |
+          set -uo pipefail
+          mkdir -p Diagnostics/analytic-finite
+          git rev-parse HEAD > Diagnostics/analytic-finite/commit.txt
+          set +e
+          /usr/bin/time -v -o Diagnostics/analytic-finite/resources.log \
+            timeout --signal=TERM --kill-after=15s 1080s \
+            lake build GARCD.SupportFiniteCertificates \
+            > Diagnostics/analytic-finite/lean.log 2>&1
+          code=$?
+          set -e
+          echo "$code" > Diagnostics/analytic-finite/exit_code.txt
+          echo "FIN_CERT_EXIT_CODE=$code"
+          if [ "$code" -eq 124 ]; then echo 'TIMEOUT, proof remains UNVERIFIED'; fi
+          tail -100 Diagnostics/analytic-finite/lean.log || true
+          cat Diagnostics/analytic-finite/resources.log || true
+          exit "$code"
+      - name: Upload logs including failed proof goals
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GARCD-analytic-finite-certificate-logs
+          path: Diagnostics/analytic-finite/
+          if-no-files-found: warn

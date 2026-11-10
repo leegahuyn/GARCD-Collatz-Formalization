@@ -30,6 +30,12 @@ for m in "${modules[@]}"; do
         echo "The exact first failed source and log above are the active mathematical frontier."
         break
         ;;
+      Module11|Module12)
+        echo "FRONTIER_BLOCK: upstream module compilation failed; do not count dependent import errors as independent."
+        echo "Finite certificate checks are deferred in this failing run; previous TIMEOUT=124 remains unverified, not PASS."
+        echo "Re-run the complete certificate checks once Module11 and Module12 pass."
+        break
+        ;;
     esac
   fi
 done

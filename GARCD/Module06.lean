@@ -118,7 +118,7 @@ lemma u_mod_succ_eq_lambda_mul (w : List ℕ) {m : ℕ} (hcop3 : Nat.Coprime 3 m
 
             ((((3 : ZMod m) ^ j) * (((3 : ZMod m) ^ j)⁻¹)) * ((3 : ZMod m) * (3 : ZMod m)⁻¹)) := by
 
-            rw [h_inv3j, h_inv3, mul_one]
+            simpa only [h_inv3j, h_inv3, one_mul, mul_one]
 
       _ = (((3 : ZMod m) ^ j * (3 : ZMod m)) * (((3 : ZMod m) ^ j * (3 : ZMod m))⁻¹)) *
 

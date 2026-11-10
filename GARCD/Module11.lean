@@ -2578,8 +2578,7 @@ theorem actualGeometricEnvelopeGoal_proved : ActualGeometricEnvelopeGoal := by
 
     have h_rho1 : ((q_nn / (1 - rho_nn) : NNReal) : ENNReal) * (rho_nn : ENNReal) ^ 1 ≤
 
-        ((q_nn / (1 - rho_nn) : NNReal) : ENNReal) * 1 :=
-
+        ((q_nn / (1 - rho_nn) : NNReal) : ENNReal) * 1 := by
       apply mul_le_mul_of_nonneg_left
       · simpa only [pow_one] using (le_of_lt hrho_e_lt1)
       · exact bot_le

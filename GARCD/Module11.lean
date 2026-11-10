@@ -2773,21 +2773,17 @@ lemma dimBound_lt_one {β : ℝ} (hβ1 : 1 < β) (hβ2 : β < 2) :
     linarith
 
   have h_log1 : Real.log (1 / (2 * p)) = -Real.log 2 - Real.log (β - 1) + Real.log β := by
-
+    rw [Real.log_div (by norm_num : (1 : ℝ) ≠ 0) (by positivity), Real.log_one,
+      Real.log_mul (by norm_num) (by positivity)]
     dsimp [p]
-
-    rw [one_div_div, Real.log_div (ne_of_gt hβ_pos) (by positivity),
-
-        Real.log_mul (by norm_num) (ne_of_gt hβm1_pos)]
-
+    rw [Real.log_div (by positivity) (by positivity)]
     ring
 
   have h_log2 : Real.log (1 / (2 * q)) = -Real.log 2 + Real.log β := by
-
+    rw [Real.log_div (by norm_num : (1 : ℝ) ≠ 0) (by positivity), Real.log_one,
+      Real.log_mul (by norm_num) (by positivity)]
     dsimp [q]
-
-    rw [one_div_div, Real.log_div (ne_of_gt hβ_pos) (by norm_num), Real.log_one]
-
+    rw [Real.log_div (by norm_num : (1 : ℝ) ≠ 0) (by positivity), Real.log_one]
     ring
 
   have hI_pos : 0 < RateFunctionI β := by

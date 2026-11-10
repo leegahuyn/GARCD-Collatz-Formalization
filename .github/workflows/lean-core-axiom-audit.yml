@@ -2,9 +2,10 @@ name: GARCD core axiom and universal DESC target audit
 
 on:
   push:
-    branches: ['research/fix-module11-doccomment-2026-11-10']
+    branches: ['research/kernel-decide-sieve-2026-11-10']
     paths:
       - 'Audit/CoreAxiomAudit.lean'
+      - 'GARCD/Module12.lean'
       - '.github/workflows/lean-core-axiom-audit.yml'
   workflow_dispatch:
 

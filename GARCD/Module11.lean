@@ -3142,7 +3142,9 @@ theorem Lemma_11_4_2_Sturmian_Bounds_And_Telescoping
 
       obtain ⟨h1, _⟩ := h_step r
       rw [hA_succ]
-      unfold sturmianRatWord
+      change A_inf (sturmianRatWord P Q β_num) r +
+          (1 + ((r + 1) * P + β_num) / Q - (r * P + β_num) / Q) +
+          β_num / Q = r + 1 + ((r + 1) * P + β_num) / Q
       omega
 
 

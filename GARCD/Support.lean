@@ -1,4 +1,5 @@
 import GARCD.Module06
+import Mathlib.Topology.MetricSpace.HausdorffDimension
 
 open scoped BigOperators
 open Finset Real Filter
@@ -318,7 +319,7 @@ private theorem q2OnesReduce (n : ℕ) (s : Q2State) :
 
   induction n using Nat.strong_induction_on with
 
-  | ind n ih =>
+  | h n ih =>
 
     by_cases hn : n < 4
 
@@ -352,7 +353,7 @@ private theorem q2StepModFour (s : Q2State) (b : ℕ) (hb : b % 4 = 2) :
 
       apply ZMod.val_injective 4
 
-      simpa only [ZMod.val_natCast, Nat.reduceMod] using hb
+      simpa [ZMod.val_natCast] using hb
 
     rw [hc]
 
@@ -449,8 +450,6 @@ private theorem q2FamilyWord_length_sum (u v t b : ℕ) :
   constructor
 
   · simp [q2FamilyWord, Nat.add_assoc]
-
-    omega
 
   · simp [q2FamilyWord, A_total, List.sum_append, List.sum_replicate]
 
@@ -1326,7 +1325,7 @@ theorem hausdorffMeasure_zero_of_vanishing_countable_cover
 
   rw [hLimit] at hUpper
 
-  exact le_antisymm hUpper (zero_le _)
+  exact le_antisymm hUpper bot_le
 
 
 
@@ -1344,7 +1343,7 @@ theorem lowValuation_hausdorffMeasure_zero_of_cost_limit
 
     (hRadius : Filter.Tendsto radius Filter.atTop (nhds 0))
 
-    (hDiam : ∀ R i : LowValuationCoverIndex β,
+    (hDiam : ∀ (R : ℕ) (i : LowValuationCoverIndex β),
 
        Metric.ediam (LowValuationTailCylinder β R i) ≤ radius R)
 
@@ -1922,7 +1921,7 @@ theorem actualTailCost_tendsto_of_geometric_envelope
 
     tendsto_const_nhds hMaj
 
-    (fun R => zero_le _)
+    (fun R => bot_le)
 
     hEnvelope
 
@@ -2038,8 +2037,9 @@ namespace HausdorffCount20261109
     *code model*, not a replacement for GARCD's original word type. -/
 
 def CutCode (A r : ℕ) :=
-
   {s : Finset (Fin (A - 1)) // s.card = r - 1}
+
+noncomputable instance (A r : ℕ) : Fintype (CutCode A r) := Fintype.ofFinite _
 
 
 

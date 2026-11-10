@@ -53,12 +53,8 @@ lemma A_part_le_add_t_excess {w : List ℕ} (hw : ∀ a ∈ w, 1 ≤ a) {j : ℕ
   have h_mono := A_part_mono_add hw hj_le (by omega : w.length - 1 ≤ w.length)
 
   have h_ge : w.length - 1 ≤ A_part w (w.length - 1) := by
-
-    have := A_part_mono_add hw (Nat.zero_le (w.length - 1)) (by omega)
-
-    simp [A_part] at this
-
-    omega
+    have hmono := A_part_mono_add hw (Nat.zero_le (w.length - 1)) (by omega)
+    simpa [A_part] using hmono
 
   omega
 
@@ -244,7 +240,7 @@ theorem GARCD_39_Concentrated_Block_Exclusion_3D
 
     have hk_sub : t - 1 = k + 1 := by omega
 
-    rw [hk, hk_sub]
+    rw [hk_sub, hk]
 
     have h_pow1 : 2 ^ (k + 2 + 1) = 8 * 2 ^ k := by ring
 
@@ -368,7 +364,7 @@ theorem GARCD_40_Concentrated_Block_Exclusion_7D
 
     have hk_sub : t - 2 = k + 1 := by omega
 
-    rw [hk, hk_sub]
+    rw [hk_sub, hk]
 
     have h_pow1 : 2 ^ (k + 3 + 1) = 16 * 2 ^ k := by ring
 
@@ -550,7 +546,7 @@ lemma A_part_wordSwapAdj_eq_of_ne (pre suf : List ℕ) (x y : ℕ) {j : ℕ}
 
     have hlen2 : (pre ++ [x, y]).length = pre.length + 2 := by simp
 
-    rw [List.take_append, List.take_append, hlen1, hlen2,
+    rw [List.take_append, List.take_append,
 
         List.take_of_length_le (by omega : (pre ++ [y, x]).length ≤ j),
 
@@ -867,8 +863,6 @@ theorem GARCD_42A_Cyclic_Swap_Universal_Nondivisibility
     omega
 
   obtain ⟨hC_diff, hcop⟩ := GARCD_41_Adjacent_Swap_One_Two_Coprime pre suf hle_swap
-
-  dsimp only at hC_diff hcop
 
   rw [hD_eq] at hcop
 

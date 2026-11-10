@@ -1,0 +1,51 @@
+name: GARCD proof core two clean builds and kernel audit
+
+on:
+  push:
+    branches: ['research/kernel-decide-sieve-2026-11-10']
+    paths: ['.github/workflows/lean-core-twoclean.yml']
+  workflow_dispatch:
+
+jobs:
+  core-two-clean:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean and Mathlib cache
+        shell: bash
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh |
+            sh -s -- -y --default-toolchain none --no-modify-path
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          lake update
+          lake exe cache get
+      - name: Clean core build 1 of 2
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p Diagnostics/clean-core
+          git rev-parse HEAD | tee Diagnostics/clean-core/commit.txt
+          lake clean
+          lake build GARCD.Module12 2>&1 | tee Diagnostics/clean-core/first.log
+      - name: Clean core build 2 of 2
+        shell: bash
+        run: |
+          set -o pipefail
+          lake clean
+          lake build GARCD.Module12 2>&1 | tee Diagnostics/clean-core/second.log
+      - name: Independent kernel and DESC axiom audit
+        shell: bash
+        run: |
+          set -o pipefail
+          lake env lean Audit/CoreAxiomAudit.lean 2>&1 | tee Diagnostics/clean-core/axioms.log
+          if grep -E 'sorryAx|unsound|_native\\.native_decide\\.ax' Diagnostics/clean-core/axioms.log; then
+            exit 1
+          fi
+      - name: Upload every available build and audit log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GARCD-core-two-clean-builds
+          path: Diagnostics/clean-core/
+          if-no-files-found: warn

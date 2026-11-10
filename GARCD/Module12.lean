@@ -1606,7 +1606,7 @@ theorem Theorem_12_5_3_Exact_Invariant_Mod_Sieve_Certificate :
 
     checkExactInvariantModSieve 7 7 = (44, 4) := by
 
-  native_decide
+  decide +kernel
 
 
 

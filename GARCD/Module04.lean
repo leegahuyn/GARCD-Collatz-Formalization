@@ -849,7 +849,7 @@ theorem GARCD_23_Repeated_Block_D_Decomposition (w : List ℕ) (k : ℕ) :
       have hshift : k + 1 - 1 - x = k - x := by omega
       rw [hshift]
 
-    rw [hsum_shift, h_scale]
+    rw [hsum_shift, mul_add, h_scale]
     obtain ⟨hk_len, hk_sum⟩ := repeatWord_length_and_sum w k
     have ih_k := ih hk_len hk_sum
     rw [← ih_k]

@@ -2262,11 +2262,10 @@ theorem exactOriginalFiberTransfer_proved : ExactOriginalFiberTransfer := by
 
   intro w _
 
-  dsimp [f, embLevelIndex]
-
   have hA_eq : A_total w.1 = A := w.2.2.1
-  change Metric.ediam (TwoAdicValuationCylinder w.1) ^ s ≤ q ^ (A + 1)
-  simpa only [hA_eq, q] using twoAdicValuationCylinder_ediam_rpow_le w.1 hs
+  have h_bound : Metric.ediam (TwoAdicValuationCylinder w.1) ^ s ≤ q ^ (A + 1) := by
+    simpa only [hA_eq, q] using twoAdicValuationCylinder_ediam_rpow_le w.1 hs
+  simpa [f, embLevelIndex] using h_bound
 
 
 

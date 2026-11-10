@@ -4,6 +4,7 @@ on:
     branches: ['research/desc-global-trace-existence-2026-11-11']
     paths:
       - 'GARCD/DESCGlobalTraceExistence.lean'
+      - 'GARCD/DESCGlobalTraceExplicit.lean'
       - 'GARCD.lean'
       - '.github/workflows/lean-desc-global-trace.yml'
   workflow_dispatch:
@@ -30,13 +31,14 @@ jobs:
           set -o pipefail
           mkdir -p Diagnostics/desc-global-trace
           git rev-parse HEAD | tee Diagnostics/desc-global-trace/commit.txt
-          lake build GARCD.DESCGlobalTraceExistence 2>&1 | tee Diagnostics/desc-global-trace/module.log
+          lake build GARCD.DESCGlobalTraceExistence GARCD.DESCGlobalTraceExplicit 2>&1 | tee Diagnostics/desc-global-trace/module.log
       - name: Audit transitive Lean axioms
         shell: bash
         run: |
           set -o pipefail
           lake env lean GARCD/DESCGlobalTraceExistence.lean 2>&1 | tee Diagnostics/desc-global-trace/axioms.log
-          if grep -E 'sorryAx|unsound|_native\\.native_decide\\.ax_' Diagnostics/desc-global-trace/axioms.log; then
+          lake env lean GARCD/DESCGlobalTraceExplicit.lean 2>&1 | tee Diagnostics/desc-global-trace/explicit-axioms.log
+          if grep -E 'sorryAx|unsound|_native\\.native_decide\\.ax_' Diagnostics/desc-global-trace/*axioms.log; then
             echo 'Unsafe proof dependency'
             exit 1
           fi

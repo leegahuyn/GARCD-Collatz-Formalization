@@ -1,0 +1,47 @@
+name: GARCD audit every declaration's transitive axioms
+on:
+  push:
+    branches: ['research/analytic-finite-cert-2026-11-10']
+    paths:
+      - 'Audit/AllDeclarationsAxiomAudit.lean'
+      - '.github/workflows/lean-exhaustive-axiom-audit.yml'
+  workflow_dispatch:
+jobs:
+  all-decl-axioms:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        shell: bash
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh |
+            sh -s -- -y --default-toolchain none --no-modify-path
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Restore Mathlib pinned dependencies
+        shell: bash
+        run: |
+          lake update
+          lake exe cache get
+      - name: Sequentially compile root with both complete finite certificates
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p Diagnostics/all-axioms
+          git rev-parse HEAD | tee Diagnostics/all-axioms/commit.txt
+          lake build GARCD.Module12 2>&1 | tee Diagnostics/all-axioms/module12.log
+          lake build GARCD.SupportP16Certificates 2>&1 | tee Diagnostics/all-axioms/p16.log
+          lake build GARCD.SupportFiniteCertificates 2>&1 | tee Diagnostics/all-axioms/finite.log
+          lake build GARCD 2>&1 | tee Diagnostics/all-axioms/root.log
+      - name: Audit all GARCD namespace declarations with Lean.collectAxioms
+        shell: bash
+        run: |
+          set -o pipefail
+          lake env lean Audit/AllDeclarationsAxiomAudit.lean 2>&1 | tee Diagnostics/all-axioms/all-declarations.log
+      - name: Save all available evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GARCD-all-declarations-transitive-axioms
+          path: Diagnostics/all-axioms/
+          if-no-files-found: warn

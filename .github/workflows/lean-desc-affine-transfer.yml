@@ -1,0 +1,53 @@
+name: GARCD general affine trace DESC certificates
+on:
+  push:
+    branches: ['research/desc-affine-transfer-2026-11-11']
+    paths:
+      - 'GARCD/DESCAffineTransfer.lean'
+      - 'GARCD.lean'
+      - '.github/workflows/lean-desc-affine-transfer.yml'
+  workflow_dispatch:
+
+jobs:
+  prove-affine-transfer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        shell: bash
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh |
+            sh -s -- -y --default-toolchain none --no-modify-path
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Restore pinned Mathlib cache
+        shell: bash
+        run: |
+          lake update
+          lake exe cache get
+      - name: Kernel compile new general theorem
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p Diagnostics/desc-affine
+          lake build GARCD.DESCAffineTransfer 2>&1 | tee Diagnostics/desc-affine/module.log
+      - name: Transitive axiom audit
+        shell: bash
+        run: |
+          set -o pipefail
+          lake env lean GARCD/DESCAffineTransfer.lean 2>&1 | tee Diagnostics/desc-affine/axioms.log
+          if grep -E 'sorryAx|unsound|_native\\.native_decide\\.ax_' Diagnostics/desc-affine/axioms.log; then
+            exit 1
+          fi
+      - name: Full GARCD build if root import present
+        shell: bash
+        run: |
+          set -o pipefail
+          lake build GARCD 2>&1 | tee Diagnostics/desc-affine/root.log
+      - name: Preserve evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GARCD-affine-transfer-logs
+          path: Diagnostics/desc-affine/
+          if-no-files-found: warn

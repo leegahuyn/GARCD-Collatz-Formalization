@@ -1,5 +1,6 @@
 import GARCD.Module10
 import GARCD.Support
+import Mathlib.Topology.Algebra.InfiniteSum.Order
 
 open scoped BigOperators
 open Finset Real Filter
@@ -374,7 +375,7 @@ lemma A_part_append_right (u v : List ℕ) (j : ℕ) :
     A_part (u ++ v) (u.length + j) = A_total u + A_part v j := by
 
   simp [A_part, A_total, List.take_append]
-
+  rw [List.take_of_length_le (by omega)]
 
 
 /-- 보조정리 11.2.2: 두 리스트 `u, v`를 이어 붙인 `u ++ v`의 보정항 `C_p (u ++ v)`는
@@ -539,7 +540,11 @@ lemma S_repeat_factor_pos (w : List ℕ) {k : ℕ} (hk : 1 ≤ k) :
 
   have hterm : 0 < 2 ^ (A_total w * (k - 1 - 0)) * 3 ^ (w.length * 0) := by positivity
 
-  exact lt_of_lt_of_le hterm (single_le_sum (fun _ _ => Nat.zero_le _) h0)
+  have hsum : 2 ^ (A_total w * (k - 1 - 0)) * 3 ^ (w.length * 0) ≤
+      ∑ t ∈ range k, 2 ^ (A_total w * (k - 1 - t)) * 3 ^ (w.length * t) :=
+    Finset.single_le_sum (fun t _ =>
+      Nat.zero_le (2 ^ (A_total w * (k - 1 - t)) * 3 ^ (w.length * t))) h0
+  exact lt_of_lt_of_le hterm hsum
 
 
 
@@ -779,8 +784,7 @@ lemma A_total_and_C_p_of_all_two :
 
       have h_last : A_part w p = 2 * p := hp_part p (by omega)
 
-      have hexp0 : p - p = 0 := by omega
-
+      have hexp0 : p + 1 - 1 - p = 0 := by omega
       rw [hexp0, pow_zero, one_mul, h_last]
 
       calc
@@ -838,15 +842,11 @@ theorem Theorem_11_2_9_A0_Manuscript_Iff_NoNontrivialCycle :
         | zero => simp [x_seq]
 
         | succ t ih =>
-
           rw [Nat.succ_mul, x_seq, Nat.add_comm (t * p) p, Function.iterate_add_apply]
-
           change F^[p] (x_seq m (t * p)) = m
-
-          change F^[p] (x_seq m (t * p)) = m
-      rw [ih]
-      change x_seq m p = m
-      exact hper
+          rw [ih]
+          change x_seq m p = m
+          exact hper
 
       have h_at_Rp : x_seq m (R * p) = 1 := by
 
@@ -2334,8 +2334,6 @@ lemma GARCDRealLevelCost_zero_le_one (β : ℝ) {s : ℝ} (hs : 0 < s) :
 
   dsimp [f, i₀]
 
-  rw [if_pos rfl]
-
   have h_le := twoAdicValuationCylinder_ediam_rpow_le [] hs
 
   have hA0 : A_total [] + 1 = 1 := rfl
@@ -2603,8 +2601,7 @@ theorem actualGeometricEnvelopeGoal_proved : ActualGeometricEnvelopeGoal := by
     have hCoeff :
         ((q_nn / (1 - rho_nn) : NNReal) : ENNReal) ≤ (K_nn : ENNReal) := by
       dsimp [K_nn]
-      rw [ENNReal.coe_add]
-      exact le_add_self
+      exact le_add_of_nonneg_left (zero_le (1 : ENNReal))
     exact mul_le_mul_of_nonneg_right hCoeff (by positivity)
 
 

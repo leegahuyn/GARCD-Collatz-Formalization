@@ -148,7 +148,9 @@ theorem Lemma_5_1_Distribution_Free_Correction_Upper_Bound
 
     have h_ico := sum_Ico_one_three_pow_mul_two_pow hp
 
-    have h_sub : (∑ j ∈ Ico 1 p, 3 ^ (p - 1 - j) * 2 ^ j) = 2 * 3 ^ (p - 1) - 2 ^ p := by omega
+    have h_sub : (∑ j ∈ Ico 1 p, 3 ^ (p - 1 - j) * 2 ^ j) = 2 * 3 ^ (p - 1) - 2 ^ p := by
+      rw [← h_ico]
+      omega
 
     rwa [h_sub] at h_sum_le
 
@@ -167,10 +169,9 @@ theorem Lemma_5_1_Distribution_Free_Correction_Upper_Bound
     simp
 
   have h_2le : 2 ^ p ≤ 2 * 3 ^ (p - 1) := by
-
-    have := sum_Ico_one_three_pow_mul_two_pow hp
-
-    omega
+    calc
+      2 ^ p ≤ (∑ j ∈ Ico 1 p, 3 ^ (p - 1 - j) * 2 ^ j) + 2 ^ p := by omega
+      _ = 2 * 3 ^ (p - 1) := sum_Ico_one_three_pow_mul_two_pow hp
 
   have h_strict_sub : 2 ^ t * (2 * 3 ^ (p - 1) - 2 ^ p) < 2 ^ t * (2 * 3 ^ (p - 1)) := by
 
@@ -258,7 +259,10 @@ theorem GARCD_39_Concentrated_Block_Exclusion_3D
 
     have h_ge1 : 1 ≤ 2 ^ (t - 1) := Nat.one_le_pow _ 2 (by omega)
 
-    have h_3p_le : 3 ^ p ≤ 2 ^ (t - 1) * 3 ^ p := by nlinarith
+    have h_3p_le : 3 ^ p ≤ 2 ^ (t - 1) * 3 ^ p := by
+      calc
+        3 ^ p = 1 * 3 ^ p := by ring
+        _ ≤ 2 ^ (t - 1) * 3 ^ p := Nat.mul_le_mul_right _ h_ge1
 
     omega
 
@@ -382,7 +386,10 @@ theorem GARCD_40_Concentrated_Block_Exclusion_7D
 
     have h_ge1 : 1 ≤ 2 ^ (t - 2) := Nat.one_le_pow _ 2 (by omega)
 
-    have h_3p_le : 3 ^ p ≤ 2 ^ (t - 2) * 3 ^ p := by nlinarith
+    have h_3p_le : 3 ^ p ≤ 2 ^ (t - 2) * 3 ^ p := by
+      calc
+        3 ^ p = 1 * 3 ^ p := by ring
+        _ ≤ 2 ^ (t - 2) * 3 ^ p := Nat.mul_le_mul_right _ h_ge1
 
     omega
 

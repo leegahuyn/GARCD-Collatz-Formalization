@@ -656,7 +656,7 @@ theorem exists_primitive_root_of_nonempty_word :
 
     push Not at hprim
 
-    obtain ⟨u, m, hm_ge2, hw_eq⟩ := hprim hw_pos
+    obtain ⟨u, m, hm_ge2, hw_eq⟩ := hprim (by simpa [hn] using hw_pos)
 
     have hlen_um : w.length = u.length * m := by
 

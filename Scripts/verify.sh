@@ -19,6 +19,15 @@ for m in "${modules[@]}"; do
   echo "Module $m exit=$code"
   grep -E 'error:|unsolved goals|unknown identifier|failed|panic|sorry' "Diagnostics/logs/${m}.log" | head -30 || true
   echo "::endgroup::"
-  if [ "$code" -ne 0 ]; then failed=1; fi
+  if [ "$code" -ne 0 ]; then
+    failed=1
+    case "$m" in
+      SupportPrelude|SupportSection[0-9][0-9])
+        echo "DEPENDENCY_BLOCK: downstream Support sections, Module11/12, and root build not independently checked."
+        echo "The exact first failed source and log above are the active mathematical frontier."
+        break
+        ;;
+    esac
+  fi
 done
 exit "$failed"

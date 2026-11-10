@@ -74,7 +74,46 @@ theorem DESC_mod32_11 (n : ℕ) (hn : 3 ≤ n)
   exact (GARCD_4_2_Exact_Descent_Iff n 3).mp
     (Syracuse_descent_mod32_11 n hn hmod)
 
+
+/-- The residual exact universal arithmetic DESC obligation after the
+already verified mod-4, mod-16 and new mod-32 descent classes. This is
+a PROP ONLY, not a theorem asserting existence of descent. -/
+def RemainingDESCMod32Goal : Prop :=
+  ∀ n : ℕ, 3 ≤ n →
+    (n % 32 = 7 ∨ n % 32 = 15 ∨ n % 32 = 23 ∨
+     n % 32 = 27 ∨ n % 32 = 31) →
+    ∃ r : ℕ, 1 ≤ r ∧
+      (C_orbit n r : ℤ) <
+        ((2 : ℤ) ^ A_orbit n r - (3 : ℤ) ^ r) * (n : ℤ)
+
+/-- Full arithmetic DESC is equivalent to its restriction to the five
+unresolved odd residue classes modulo 32. This equivalence DOES NOT
+prove the proposition on the right. -/
+theorem DESCArithmeticProp_iff_remaining_five_mod32 :
+    DESCArithmeticProp ↔ RemainingDESCMod32Goal := by
+  constructor
+  · intro hall n hn _
+    have hodd : n % 2 = 1 := by omega
+    exact hall n hodd hn
+  · intro hrest n hodd hn
+    by_cases hbase : n % 4 = 1 ∨ n % 16 = 3
+    · rcases hbase with h4 | h16
+      · refine ⟨1, by omega, ?_⟩
+        exact (GARCD_4_2_Exact_Descent_Iff n 1).mp
+          ((Theorem_12_5_2_Mod4_And_Mod16_Universal_Descent n hn).1 h4)
+      · refine ⟨2, by omega, ?_⟩
+        exact (GARCD_4_2_Exact_Descent_Iff n 2).mp
+          ((Theorem_12_5_2_Mod4_And_Mod16_Universal_Descent n hn).2 h16)
+    · by_cases h11 : n % 32 = 11
+      · exact DESC_mod32_11 n hn h11
+      · have hclasses : n % 32 = 7 ∨ n % 32 = 15 ∨
+            n % 32 = 23 ∨ n % 32 = 27 ∨ n % 32 = 31 := by
+          omega
+        exact hrest n hn hclasses
+
 end GARCD
 
 #print axioms GARCD.Syracuse_descent_mod32_11
 #print axioms GARCD.DESC_mod32_11
+
+#print axioms GARCD.DESCArithmeticProp_iff_remaining_five_mod32

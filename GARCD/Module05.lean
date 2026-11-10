@@ -142,6 +142,7 @@ theorem GARCD_31_Exact_Word_Counts_4734620 :
 
     `(p, A) = (5, 8)`의 35개 블록 및 `(p, A) = (8, 13)`의 792개 블록 전체에서 `C_p(w) mod D(w) ≠ 0` 이다. -/
 
+set_option maxRecDepth 8192 in
 theorem GARCD_31_Exhaustive_Certificate_p5_p8 :
 
     (compositionsPos 5 8).length = 35 ∧

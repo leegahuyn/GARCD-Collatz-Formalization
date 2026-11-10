@@ -772,10 +772,7 @@ theorem GARCD_SQ_H3_Explicit_Factorization
 
   intro z₁ z₂ z₃
 
-  unfold H_sym_zero allSignedSums z₁ z₂ z₃
-
-  simp only [List.map, List.append_nil, List.prod_cons, List.prod_nil, mul_one]
-
+  simp [H_sym_zero, allSignedSums]
   ring
 
 

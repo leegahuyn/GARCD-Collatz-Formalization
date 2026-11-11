@@ -1,0 +1,53 @@
+name: GARCD general rational p/q valuation barrier proof
+on:
+  push:
+    branches: ['research/desc-general-rational-drift-2026-11-11']
+    paths:
+      - 'GARCD/DESCRationalDriftBarrier.lean'
+      - 'GARCD.lean'
+      - '.github/workflows/lean-desc-rational-drift.yml'
+  workflow_dispatch:
+jobs:
+  rational-drift:
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        shell: bash
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh |
+            sh -s -- -y --default-toolchain none --no-modify-path
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Restore pinned mathlib
+        shell: bash
+        run: |
+          lake update
+          lake exe cache get
+      - name: Kernel-check general rational drift certificate
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p Diagnostics/desc-rational-drift
+          git rev-parse HEAD | tee Diagnostics/desc-rational-drift/commit.txt
+          lake build GARCD.DESCRationalDriftBarrier 2>&1 | tee Diagnostics/desc-rational-drift/module.log
+      - name: Audit transitive axioms
+        shell: bash
+        run: |
+          set -o pipefail
+          lake env lean GARCD/DESCRationalDriftBarrier.lean 2>&1 | tee Diagnostics/desc-rational-drift/axioms.log
+          if grep -E 'sorryAx|unsound|_native\\.native_decide\\.ax_' Diagnostics/desc-rational-drift/axioms.log; then
+            exit 1
+          fi
+      - name: Build GARCD root
+        shell: bash
+        run: |
+          set -o pipefail
+          lake build GARCD 2>&1 | tee Diagnostics/desc-rational-drift/root.log
+      - name: Upload diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GARCD-rational-drift-logs
+          path: Diagnostics/desc-rational-drift/
+          if-no-files-found: warn

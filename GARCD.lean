@@ -15,3 +15,4 @@ import GARCD.DESCFiveThirdsEquivalence
 import GARCD.DESCLyapunovEnergy
 import GARCD.DESCExceptionalChains
 import GARCD.DESCLyapunovFloorEquivalence
+import GARCD.DESCMersenneBadPrefixes

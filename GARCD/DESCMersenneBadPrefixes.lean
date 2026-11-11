@@ -67,6 +67,8 @@ theorem mersenne_bad_prefix_at_every_depth (R : ℕ) :
             intro j hj
             exact hvals j (Finset.mem_range.mp hj)
       _ = r := by simp
+  change 3 * A_orbit n r < 5 * r
+  rw [hA]
   omega
 
 /-- Every finite prefix depth has some exceptional odd starting value. -/

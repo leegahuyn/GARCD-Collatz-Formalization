@@ -37,11 +37,11 @@ theorem no_descent_forces_mean_valuation_below_seven_fourths
       (n ^ r) ^ 4 * 2 ^ (7 * r) := by
     calc
       ((3 * n + 1) ^ r) ^ 4 = ((3 * n + 1) ^ 4) ^ r := by
-        simp [pow_mul, mul_comm]
+        simp only [← pow_mul, mul_comm]
       _ < (128 * n ^ 4) ^ r := hstrictpow
       _ = (n ^ r) ^ 4 * 2 ^ (7 * r) := by
         rw [show (128 : ℕ) = 2 ^ 7 by norm_num]
-        simp [mul_pow, pow_mul, mul_comm, mul_left_comm, mul_assoc]
+        simp only [mul_pow, ← pow_mul, mul_comm]
   by_contra hnot
   have hlarge : 7 * r ≤ 4 * A_orbit n r := by omega
   have hpow : 2 ^ (7 * r) ≤ 2 ^ (4 * A_orbit n r) :=
@@ -53,7 +53,7 @@ theorem no_descent_forces_mean_valuation_below_seven_fourths
           (n ^ r) ^ 4 * 2 ^ (4 * A_orbit n r) :=
             Nat.mul_le_mul_left _ hpow
       _ = (n ^ r * 2 ^ A_orbit n r) ^ 4 := by
-        simp [mul_pow, pow_mul, mul_comm, mul_left_comm, mul_assoc]
+        simp only [mul_pow, ← pow_mul, mul_comm]
   have hbar4 : (n ^ r * 2 ^ A_orbit n r) ^ 4 ≤
       ((3 * n + 1) ^ r) ^ 4 := by
     gcongr <;> assumption

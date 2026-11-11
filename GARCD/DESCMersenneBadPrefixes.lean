@@ -124,9 +124,35 @@ theorem no_uniform_finite_five_thirds_certificate_depth :
   have hsmall := hbad.2.2 r hrpos hrR
   omega
 
+/-- The same Mersenne orbit also disproves the existence of any
+UNIFORM finite descent time bound: for each R one can choose a positive
+odd starting value whose first R positive Syracuse iterates all
+strictly exceed the initial value. This is fully consistent with
+Collatz because the initial value depends on R. -/
+theorem no_uniform_finite_DESC_depth :
+    ¬ ∃ R : ℕ, ∀ n : ℕ,
+        n % 2 = 1 → 7 ≤ n →
+        ∃ r : ℕ, 1 ≤ r ∧ r ≤ R ∧
+          x_seq n r < n := by
+  rintro ⟨R, hbound⟩
+  let n := 2 ^ (R + 3) - 1
+  have hbad : BadFiveThirdsPrefix n R := by
+    simpa [n] using mersenne_bad_prefix_at_every_depth R
+  obtain ⟨r, hrpos, hrR, hdrop⟩ :=
+    hbound n hbad.1 hbad.2.1
+  have hmer : (2 ^ ((R + 2) + 1) - 1) <
+      x_seq (2 ^ ((R + 2) + 1) - 1) r :=
+    (Lemma_13_5_Mersenne_Valuations_And_Ascent (R + 2)).2 r
+      hrpos (by omega)
+  have heq : R + 3 = (R + 2) + 1 := by omega
+  have hascent : n < x_seq n r := by
+    simpa [n, heq] using hmer
+  omega
+
 end GARCD
 
 #print axioms GARCD.mersenne_bad_prefix_at_every_depth
 #print axioms GARCD.exceptional_prefix_nonempty
 #print axioms GARCD.exceptional_prefix_arbitrarily_large
 #print axioms GARCD.no_uniform_finite_five_thirds_certificate_depth
+#print axioms GARCD.no_uniform_finite_DESC_depth

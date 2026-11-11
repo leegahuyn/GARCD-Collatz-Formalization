@@ -13,3 +13,5 @@ import GARCD.DESCMeanFiveThirds
 import GARCD.DESCRationalDriftBarrier
 import GARCD.DESCFiveThirdsEquivalence
 import GARCD.DESCLyapunovEnergy
+import GARCD.DESCExceptionalChains
+import GARCD.DESCLyapunovFloorEquivalence

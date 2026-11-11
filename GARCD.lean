@@ -6,3 +6,4 @@ import GARCD.DESCInfiniteFamilies
 import GARCD.DESCAffineTransfer
 import GARCD.DESCGlobalTraceExistence
 import GARCD.DESCGlobalTraceExplicit
+import GARCD.DESCValuationBarrier

@@ -12,3 +12,4 @@ import GARCD.DESCUniformSevenFourths
 import GARCD.DESCMeanFiveThirds
 import GARCD.DESCRationalDriftBarrier
 import GARCD.DESCFiveThirdsEquivalence
+import GARCD.DESCLyapunovEnergy

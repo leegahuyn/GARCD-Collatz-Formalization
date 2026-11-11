@@ -1,0 +1,53 @@
+name: GARCD exact global five-thirds drift iff Collatz
+on:
+  push:
+    branches: ['research/desc-five-thirds-iff-collatz-2026-11-11']
+    paths:
+      - 'GARCD/DESCFiveThirdsEquivalence.lean'
+      - 'GARCD.lean'
+      - '.github/workflows/lean-desc-five-thirds-equivalence.yml'
+  workflow_dispatch:
+jobs:
+  five-thirds-iff:
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        shell: bash
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh |
+            sh -s -- -y --default-toolchain none --no-modify-path
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Restore Mathlib
+        shell: bash
+        run: |
+          lake update
+          lake exe cache get
+      - name: Kernel-check exact equivalence
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p Diagnostics/five-thirds-iff
+          git rev-parse HEAD | tee Diagnostics/five-thirds-iff/commit.txt
+          lake build GARCD.DESCFiveThirdsEquivalence 2>&1 | tee Diagnostics/five-thirds-iff/module.log
+      - name: Axiom audit
+        shell: bash
+        run: |
+          set -o pipefail
+          lake env lean GARCD/DESCFiveThirdsEquivalence.lean 2>&1 | tee Diagnostics/five-thirds-iff/axioms.log
+          if grep -E 'sorryAx|unsound|_native\\.native_decide\\.ax_' Diagnostics/five-thirds-iff/axioms.log; then
+            exit 1
+          fi
+      - name: Full root build
+        shell: bash
+        run: |
+          set -o pipefail
+          lake build GARCD 2>&1 | tee Diagnostics/five-thirds-iff/root.log
+      - name: Preserve verification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GARCD-five-thirds-iff-logs
+          path: Diagnostics/five-thirds-iff/
+          if-no-files-found: warn

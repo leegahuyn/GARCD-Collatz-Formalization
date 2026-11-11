@@ -93,8 +93,30 @@ theorem mean_valuation_seven_fourths_forces_DESC
   exact ⟨j, hjpos, hjr,
     (GARCD_4_2_Exact_Descent_Iff n j).mp hdrop⟩
 
+/-- The global seven-fourths drift-existence proposition (OPEN).
+It requires every odd n >= 3 to have some finite prefix with
+mean valuation at least 7/4; it is NOT proved here. -/
+def GlobalSevenFourthsDriftGoal : Prop :=
+  ∀ n : ℕ, n % 2 = 1 → 3 ≤ n →
+    ∃ r : ℕ, 1 ≤ r ∧ 7 * r ≤ 4 * A_orbit n r
+
+/-- A universally valid 7/4 drift-existence theorem would resolve
+Collatz. The hypothesis remains unproved. -/
+theorem GlobalSevenFourthsDriftGoal_implies_Collatz :
+    GlobalSevenFourthsDriftGoal → CollatzConjectureProp := by
+  intro hglobal
+  have hall : DESCArithmeticProp := by
+    intro n hodd hn
+    obtain ⟨r, hr, hlarge⟩ := hglobal n hodd hn
+    obtain ⟨j, hjpos, _, hdesc⟩ :=
+      mean_valuation_seven_fourths_forces_DESC n r hn hr hlarge
+    exact ⟨j, hjpos, hdesc⟩
+  exact (DESCArithmeticProp_iff_remaining_thirteen_mod128.trans
+    RemainingDESC13Mod128Goal_iff_Collatz).mp hall
+
 end GARCD
 
 #print axioms GARCD.no_descent_forces_mean_valuation_below_seven_fourths
 #print axioms GARCD.mean_valuation_seven_fourths_forces_descent
 #print axioms GARCD.mean_valuation_seven_fourths_forces_DESC
+#print axioms GARCD.GlobalSevenFourthsDriftGoal_implies_Collatz

@@ -1,0 +1,53 @@
+name: GARCD exceptional representatives and Collatz equivalence
+on:
+  push:
+    branches: ['research/desc-exceptional-chain-equivalence-2026-11-11']
+    paths:
+      - 'GARCD/DESCExceptionalChains.lean'
+      - 'GARCD.lean'
+      - '.github/workflows/lean-desc-exceptional-chains.yml'
+  workflow_dispatch:
+jobs:
+  representative-logic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        shell: bash
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh |
+            sh -s -- -y --default-toolchain none --no-modify-path
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Restore pinned Mathlib
+        shell: bash
+        run: |
+          lake update
+          lake exe cache get
+      - name: Kernel-check nested exceptional chains
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p Diagnostics/desc-exceptional-chains
+          git rev-parse HEAD | tee Diagnostics/desc-exceptional-chains/commit.txt
+          lake build GARCD.DESCExceptionalChains 2>&1 | tee Diagnostics/desc-exceptional-chains/module.log
+      - name: Audit all transitive axioms
+        shell: bash
+        run: |
+          set -o pipefail
+          lake env lean GARCD/DESCExceptionalChains.lean 2>&1 | tee Diagnostics/desc-exceptional-chains/axioms.log
+          if grep -E 'sorryAx|unsound|_native\\.native_decide\\.ax_' Diagnostics/desc-exceptional-chains/axioms.log; then
+            exit 1
+          fi
+      - name: Full GARCD root build
+        shell: bash
+        run: |
+          set -o pipefail
+          lake build GARCD 2>&1 | tee Diagnostics/desc-exceptional-chains/root.log
+      - name: Upload verification logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GARCD-exceptional-chains-logs
+          path: Diagnostics/desc-exceptional-chains/
+          if-no-files-found: warn

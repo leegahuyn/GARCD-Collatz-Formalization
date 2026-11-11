@@ -93,15 +93,15 @@ theorem mean_valuation_five_thirds_forces_DESC
 
 /-- The number of initial r steps having exactly one division by two. -/
 def valuation_one_count (n r : ℕ) : ℕ :=
-  ∑ j ∈ Finset.range r, if a_seq n j = 1 then 1 else 0
+  (Finset.range r).sum (fun j => if a_seq n j = 1 then 1 else 0)
 
 /-- For every odd n, each exponent is >= 1. Thus the number of
 valuation-one steps controls the total valuation budget. -/
 theorem one_count_budget (n r : ℕ) (hodd : n % 2 = 1) :
     2 * r ≤ A_orbit n r + valuation_one_count n r := by
   have hsum :
-      (∑ j ∈ Finset.range r, (2 : ℕ)) ≤
-        (∑ j ∈ Finset.range r,
+      (Finset.range r).sum (fun _ => (2 : ℕ)) ≤
+        (Finset.range r).sum (fun j =>
           a_seq n j + (if a_seq n j = 1 then 1 else 0)) := by
     apply Finset.sum_le_sum
     intro j hj

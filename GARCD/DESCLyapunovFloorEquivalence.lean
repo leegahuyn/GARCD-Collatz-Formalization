@@ -63,7 +63,9 @@ theorem reaches_one_gives_positive_lyapunov_floor
     {n R : ℕ} (hodd : n % 2 = 1)
     (hR : x_seq n R = 1) :
     CubicLyapunovUniformPositiveFloor n := by
-  refine ⟨2 ^ (5 * R), by positivity, ?_⟩
+  refine ⟨2 ^ (5 * R), by
+    have hp : 0 < (2 : ℕ) ^ (5 * R) := by positivity
+    omega, ?_⟩
   intro r
   have hscore : 5 * r ≤ 5 * R + 3 * A_orbit n r := by
     by_cases hsmall : r ≤ R
@@ -75,7 +77,11 @@ theorem reaches_one_gives_positive_lyapunov_floor
   have hpow : 32 ^ r ≤ 2 ^ (5 * R + 3 * A_orbit n r) := by
     have h2 : 2 ^ (5 * r) ≤ 2 ^ (5 * R + 3 * A_orbit n r) :=
       Nat.pow_le_pow_right (by omega) hscore
-    simpa [show (32 : ℕ) = 2 ^ 5 by norm_num, ← pow_mul] using h2
+    have h32 : 32 ^ r = 2 ^ (5 * r) := by
+      rw [show (32 : ℕ) = 2 ^ 5 by norm_num]
+      rw [← pow_mul]
+    rw [h32]
+    exact h2
   have hodd_r := x_seq_odd hodd r
   have hxpos : 0 < x_seq n r := by omega
   have hcube : 1 ≤ (x_seq n r) ^ 3 := by

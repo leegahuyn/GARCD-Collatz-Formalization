@@ -1,0 +1,53 @@
+name: GARCD exact Lyapunov contraction and axiom audit
+on:
+  push:
+    branches: ['research/desc-lyapunov-energy-2026-11-11']
+    paths:
+      - 'GARCD/DESCLyapunovEnergy.lean'
+      - 'GARCD.lean'
+      - '.github/workflows/lean-desc-lyapunov.yml'
+  workflow_dispatch:
+jobs:
+  lyapunov:
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Lean
+        shell: bash
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh |
+            sh -s -- -y --default-toolchain none --no-modify-path
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Restore pinned Mathlib cache
+        shell: bash
+        run: |
+          lake update
+          lake exe cache get
+      - name: Kernel-check exact Lyapunov potential
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p Diagnostics/desc-lyapunov
+          git rev-parse HEAD | tee Diagnostics/desc-lyapunov/commit.txt
+          lake build GARCD.DESCLyapunovEnergy 2>&1 | tee Diagnostics/desc-lyapunov/module.log
+      - name: Transitive axiom audit
+        shell: bash
+        run: |
+          set -o pipefail
+          lake env lean GARCD/DESCLyapunovEnergy.lean 2>&1 | tee Diagnostics/desc-lyapunov/axioms.log
+          if grep -E 'sorryAx|unsound|_native\\.native_decide\\.ax_' Diagnostics/desc-lyapunov/axioms.log; then
+            exit 1
+          fi
+      - name: Full GARCD build
+        shell: bash
+        run: |
+          set -o pipefail
+          lake build GARCD 2>&1 | tee Diagnostics/desc-lyapunov/root.log
+      - name: Store evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GARCD-desc-lyapunov-logs
+          path: Diagnostics/desc-lyapunov/
+          if-no-files-found: warn

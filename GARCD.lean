@@ -10,3 +10,4 @@ import GARCD.DESCValuationBarrier
 import GARCD.DESCGlobalBudgetReduction
 import GARCD.DESCUniformSevenFourths
 import GARCD.DESCMeanFiveThirds
+import GARCD.DESCRationalDriftBarrier

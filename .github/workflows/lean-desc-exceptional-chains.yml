@@ -4,6 +4,7 @@ on:
     branches: ['research/desc-exceptional-chain-equivalence-2026-11-11']
     paths:
       - 'GARCD/DESCExceptionalChains.lean'
+      - 'GARCD/DESCLyapunovFloorEquivalence.lean'
       - 'GARCD.lean'
       - '.github/workflows/lean-desc-exceptional-chains.yml'
   workflow_dispatch:
@@ -30,13 +31,14 @@ jobs:
           set -o pipefail
           mkdir -p Diagnostics/desc-exceptional-chains
           git rev-parse HEAD | tee Diagnostics/desc-exceptional-chains/commit.txt
-          lake build GARCD.DESCExceptionalChains 2>&1 | tee Diagnostics/desc-exceptional-chains/module.log
+          lake build GARCD.DESCExceptionalChains GARCD.DESCLyapunovFloorEquivalence 2>&1 | tee Diagnostics/desc-exceptional-chains/module.log
       - name: Audit all transitive axioms
         shell: bash
         run: |
           set -o pipefail
           lake env lean GARCD/DESCExceptionalChains.lean 2>&1 | tee Diagnostics/desc-exceptional-chains/axioms.log
-          if grep -E 'sorryAx|unsound|_native\\.native_decide\\.ax_' Diagnostics/desc-exceptional-chains/axioms.log; then
+          lake env lean GARCD/DESCLyapunovFloorEquivalence.lean 2>&1 | tee Diagnostics/desc-exceptional-chains/floor-axioms.log
+          if grep -E 'sorryAx|unsound|_native\\.native_decide\\.ax_' Diagnostics/desc-exceptional-chains/*axioms.log; then
             exit 1
           fi
       - name: Full GARCD root build

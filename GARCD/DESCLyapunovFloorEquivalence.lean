@@ -39,7 +39,7 @@ private theorem cubic_energy_geometric_gain (C : ℕ) :
     C * 1331 ^ (23 * C) < 1372 ^ (23 * C) := by
   have hblock : 2 * 1331 ^ 23 ≤ 1372 ^ 23 := by norm_num
   have hpow : (2 * 1331 ^ 23) ^ C ≤ (1372 ^ 23) ^ C := by
-    gcongr
+    gcongr <;> assumption
   have htwo : C < 2 ^ C := nat_lt_two_pow_self C
   have hpos : 0 < 1331 ^ (23 * C) := by positivity
   calc
